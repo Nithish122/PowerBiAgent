@@ -6,7 +6,6 @@ model Model
 	dataAccessOptions
 		legacyRedirects
 		returnErrorValuesAsNull
-	discourageImplicitMeasures
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 
