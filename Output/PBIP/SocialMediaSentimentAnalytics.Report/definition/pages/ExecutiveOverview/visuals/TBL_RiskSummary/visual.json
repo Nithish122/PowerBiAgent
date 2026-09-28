@@ -1,0 +1,16 @@
+﻿{
+    "position":  {
+                     "width":  600,
+                     "y":  524,
+                     "z":  7,
+                     "x":  656,
+                     "tabOrder":  7,
+                     "height":  172
+                 },
+    "name":  "TBL_RiskSummary",
+    "$schema":  "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+    "visual":  {
+                   "visualType":  "tableEx",
+                   "drillFilterOtherVisuals":  true
+               }
+}

@@ -1,0 +1,171 @@
+table FactPost
+	column PostKey
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: PostKey
+
+	column DateKey
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: DateKey
+
+	column PlatformKey
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: PlatformKey
+
+	column TopicKey
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: TopicKey
+
+	column SentimentKey
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: SentimentKey
+
+	column LocationKey
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: LocationKey
+
+	column LanguageKey
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: LanguageKey
+
+	column PostDate
+		dataType: dateTime
+		summarizeBy: none
+		sourceColumn: PostDate
+
+	column PlatformName
+		dataType: string
+		summarizeBy: none
+		sourceColumn: platform
+
+	column TopicName
+		dataType: string
+		summarizeBy: none
+		sourceColumn: topic_category
+
+	column SentimentLabel
+		dataType: string
+		summarizeBy: none
+		sourceColumn: sentiment_label
+
+	column UserLocation
+		dataType: string
+		summarizeBy: none
+		sourceColumn: user_location
+
+	column LanguageName
+		dataType: string
+		summarizeBy: none
+		sourceColumn: language
+
+	column FollowerCount
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: FollowerCount
+
+	column LikeCount
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: like_count
+
+	column CommentCount
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: comment_count
+
+	column ShareCount
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: share_count
+
+	column TotalEngagement
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: TotalEngagement
+
+	column EngagementScore
+		dataType: double
+		summarizeBy: average
+		sourceColumn: engagement_score
+
+	column SentimentScore
+		dataType: double
+		summarizeBy: average
+		sourceColumn: sentiment_score
+
+	column IsTrendingTopic
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: is_trending_topic
+
+	column IsSpamFlag
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: spam_flag
+
+	partition FactPost = m
+		mode: import
+		source =
+				let
+					Source = Csv.Document(
+						File.Contents("C:\Users\User\Downloads\Social_Media_Sentiment_Analysis_AI_Trends_2026.csv"),
+						[Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]
+					),
+					PromoteHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+					ChangedTypes = Table.TransformColumnTypes(
+						PromoteHeaders,
+						{
+							{"platform", type text},
+							{"post_id", type text},
+							{"user_id", type text},
+							{"username", type text},
+							{"user_verified", type logical},
+							{"user_followers_count", Int64.Type},
+							{"user_location", type text},
+							{"post_text", type text},
+							{"language", type text},
+							{"hashtags", type text},
+							{"mentions", type text},
+							{"post_length", Int64.Type},
+							{"like_count", Int64.Type},
+							{"comment_count", Int64.Type},
+							{"share_count", Int64.Type},
+							{"engagement_score", type number},
+							{"posted_datetime", type datetime},
+							{"day_of_week", type text},
+							{"is_trending_topic", type logical},
+							{"topic_category", type text},
+							{"sentiment_label", type text},
+							{"sentiment_score", type number},
+							{"emotion_label", type text},
+							{"toxicity_score", type number},
+							{"sarcasm_detected", type logical},
+							{"spam_flag", type logical},
+							{"data_source_url", type text}
+						}
+					),
+					AddPostKey = Table.AddIndexColumn(ChangedTypes, "PostKey", 1, 1),
+					AddDateKey = Table.AddColumn(AddPostKey, "DateKey", each Date.Year([posted_datetime]) * 10000 + Date.Month([posted_datetime]) * 100 + Date.Day([posted_datetime]), Int64.Type),
+					AddPlatformKey = Table.AddColumn(AddDateKey, "PlatformKey", each if [platform] = "YouTube" then 1 else if [platform] = "Twitter" then 2 else if [platform] = "Reddit" then 3 else if [platform] = "Instagram" then 4 else if [platform] = "Facebook" then 5 else 6, Int64.Type),
+					AddTopicKey = Table.AddColumn(AddPlatformKey, "TopicKey", each if [topic_category] = "Technology" then 1 else if [topic_category] = "Finance" then 2 else if [topic_category] = "Politics" then 3 else if [topic_category] = "Sports" then 4 else 5, Int64.Type),
+					AddSentimentKey = Table.AddColumn(AddTopicKey, "SentimentKey", each if [sentiment_label] = "Positive" then 1 else if [sentiment_label] = "Neutral" then 2 else 3, Int64.Type),
+					AddLocationKey = Table.AddColumn(AddSentimentKey, "LocationKey", each if [user_location] = "USA" then 1 else if [user_location] = "UK" then 2 else if [user_location] = "Germany" then 3 else if [user_location] = "Pakistan" then 4 else if [user_location] = "India" then 5 else 6, Int64.Type),
+					AddLanguageKey = Table.AddColumn(AddLocationKey, "LanguageKey", each if [language] = "en" then 1 else if [language] = "es" then 2 else if [language] = "fr" then 3 else if [language] = "de" then 4 else if [language] = "ur" then 5 else 6, Int64.Type),
+					AddPostDate = Table.AddColumn(AddLanguageKey, "PostDate", each Date.From([posted_datetime]), type date),
+					AddTotalEngagement = Table.AddColumn(AddPostDate, "TotalEngagement", each [like_count] + [comment_count] + [share_count], Int64.Type),
+					AddFollowerCount = Table.AddColumn(AddTotalEngagement, "FollowerCount", each [user_followers_count], Int64.Type)
+				in
+					AddFollowerCount

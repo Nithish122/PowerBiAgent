@@ -1,0 +1,23 @@
+relationship e7c4c3a0-3aa9-4f83-b9e5-411275da9b1d
+	fromColumn: FactPost.DateKey
+	toColumn: DimDate.DateKey
+
+relationship a7f76ab6-2e3c-41c5-99b1-4e7ed1e64ff3
+	fromColumn: FactPost.PlatformKey
+	toColumn: DimPlatform.PlatformKey
+
+relationship 5caf2b63-67f2-45c2-9cb5-0c922f9f2e77
+	fromColumn: FactPost.TopicKey
+	toColumn: DimTopic.TopicKey
+
+relationship 71a83892-3ef2-4ee8-9a15-d0cd29a0c02f
+	fromColumn: FactPost.SentimentKey
+	toColumn: DimSentiment.SentimentKey
+
+relationship fc6f9db0-b5d4-4865-a91b-3f1af11c68ef
+	fromColumn: FactPost.LocationKey
+	toColumn: DimLocation.LocationKey
+
+relationship f7c6d6f0-7d4b-43d8-a0dc-0e6c6bbd500b
+	fromColumn: FactPost.LanguageKey
+	toColumn: DimLanguage.LanguageKey

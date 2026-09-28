@@ -1,0 +1,27 @@
+table DimLocation
+	column LocationKey
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: LocationKey
+
+	column CountryName
+		dataType: string
+		summarizeBy: none
+		sourceColumn: CountryName
+
+	column RegionName
+		dataType: string
+		summarizeBy: none
+		sourceColumn: RegionName
+
+	partition DimLocation = m
+		mode: import
+		source =
+				let
+					Source = #table(
+						type table [LocationKey = Int64.Type, CountryName = text, RegionName = text],
+						{{1, "USA", "North America"}, {2, "UK", "Europe"}, {3, "Germany", "Europe"}, {4, "Pakistan", "Asia"}, {5, "India", "Asia"}, {6, "Other", "Other"}}
+					)
+				in
+					Source

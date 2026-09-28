@@ -1,0 +1,16 @@
+﻿{
+    "position":  {
+                     "width":  280,
+                     "y":  132,
+                     "z":  1,
+                     "x":  336,
+                     "tabOrder":  1,
+                     "height":  110
+                 },
+    "name":  "KPI_NetSentiment",
+    "$schema":  "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+    "visual":  {
+                   "visualType":  "cardVisual",
+                   "drillFilterOtherVisuals":  true
+               }
+}

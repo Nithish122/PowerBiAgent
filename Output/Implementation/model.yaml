@@ -1,0 +1,434 @@
+model:
+  name: SocialMediaSentimentAnalytics
+  culture: en-US
+  defaultStorageMode: import
+
+tables:
+  - name: FactPost
+    kind: fact
+    grain: one row per post
+    reqs: [REQ-009]
+    source:
+      status: known
+      m: |
+        let
+            Source = Csv.Document(
+                File.Contents("Data/Social_Media_Sentiment_Analysis_AI_Trends_2026.csv"),
+                [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]
+            ),
+            PromoteHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+            ChangedTypes = Table.TransformColumnTypes(
+                PromoteHeaders,
+                {
+                    {"platform", type text},
+                    {"post_id", type text},
+                    {"user_id", type text},
+                    {"username", type text},
+                    {"user_verified", type logical},
+                    {"user_followers_count", Int64.Type},
+                    {"user_location", type text},
+                    {"post_text", type text},
+                    {"language", type text},
+                    {"hashtags", type text},
+                    {"mentions", type text},
+                    {"post_length", Int64.Type},
+                    {"like_count", Int64.Type},
+                    {"comment_count", Int64.Type},
+                    {"share_count", Int64.Type},
+                    {"engagement_score", type number},
+                    {"posted_datetime", type datetime},
+                    {"day_of_week", type text},
+                    {"is_trending_topic", type logical},
+                    {"topic_category", type text},
+                    {"sentiment_label", type text},
+                    {"sentiment_score", type number},
+                    {"emotion_label", type text},
+                    {"toxicity_score", type number},
+                    {"sarcasm_detected", type logical},
+                    {"spam_flag", type logical},
+                    {"data_source_url", type text}
+                }
+            ),
+            AddPostKey = Table.AddIndexColumn(ChangedTypes, "PostKey", 1, 1),
+            AddDateKey = Table.AddColumn(AddPostKey, "DateKey", each Date.Year([posted_datetime]) * 10000 + Date.Month([posted_datetime]) * 100 + Date.Day([posted_datetime]), Int64.Type),
+            AddPlatformKey = Table.AddColumn(AddDateKey, "PlatformKey", each if [platform] = "YouTube" then 1 else if [platform] = "Twitter" then 2 else if [platform] = "Reddit" then 3 else if [platform] = "Instagram" then 4 else if [platform] = "Facebook" then 5 else 6, Int64.Type),
+            AddTopicKey = Table.AddColumn(AddPlatformKey, "TopicKey", each if [topic_category] = "Technology" then 1 else if [topic_category] = "Finance" then 2 else if [topic_category] = "Politics" then 3 else if [topic_category] = "Sports" then 4 else 5, Int64.Type),
+            AddSentimentKey = Table.AddColumn(AddTopicKey, "SentimentKey", each if [sentiment_label] = "Positive" then 1 else if [sentiment_label] = "Neutral" then 2 else 3, Int64.Type),
+            AddLocationKey = Table.AddColumn(AddSentimentKey, "LocationKey", each if [user_location] = "USA" then 1 else if [user_location] = "UK" then 2 else if [user_location] = "Germany" then 3 else if [user_location] = "Pakistan" then 4 else if [user_location] = "India" then 5 else 6, Int64.Type),
+            AddLanguageKey = Table.AddColumn(AddLocationKey, "LanguageKey", each if [language] = "en" then 1 else if [language] = "es" then 2 else if [language] = "fr" then 3 else if [language] = "de" then 4 else if [language] = "ur" then 5 else 6, Int64.Type),
+            AddPostDate = Table.AddColumn(AddLanguageKey, "PostDate", each Date.From([posted_datetime]), type date),
+            AddTotalEngagement = Table.AddColumn(AddPostDate, "TotalEngagement", each [like_count] + [comment_count] + [share_count], Int64.Type),
+            AddFollowerCount = Table.AddColumn(AddTotalEngagement, "FollowerCount", each [user_followers_count], Int64.Type)
+        in
+            AddFollowerCount
+    columns:
+      - { name: PostKey, dataType: int64, sourceColumn: PostKey, isHidden: true, summarizeBy: none }
+      - { name: DateKey, dataType: int64, sourceColumn: DateKey, isHidden: true, summarizeBy: none }
+      - { name: PlatformKey, dataType: int64, sourceColumn: PlatformKey, isHidden: true, summarizeBy: none }
+      - { name: TopicKey, dataType: int64, sourceColumn: TopicKey, isHidden: true, summarizeBy: none }
+      - { name: SentimentKey, dataType: int64, sourceColumn: SentimentKey, isHidden: true, summarizeBy: none }
+      - { name: LocationKey, dataType: int64, sourceColumn: LocationKey, isHidden: true, summarizeBy: none }
+      - { name: LanguageKey, dataType: int64, sourceColumn: LanguageKey, isHidden: true, summarizeBy: none }
+      - { name: PostDate, dataType: dateTime, sourceColumn: PostDate, isHidden: false, summarizeBy: none }
+      - { name: PlatformName, dataType: string, sourceColumn: platform, isHidden: false, summarizeBy: none }
+      - { name: TopicName, dataType: string, sourceColumn: topic_category, isHidden: false, summarizeBy: none }
+      - { name: SentimentLabel, dataType: string, sourceColumn: sentiment_label, isHidden: false, summarizeBy: none }
+      - { name: UserLocation, dataType: string, sourceColumn: user_location, isHidden: false, summarizeBy: none }
+      - { name: LanguageName, dataType: string, sourceColumn: language, isHidden: false, summarizeBy: none }
+      - { name: FollowerCount, dataType: int64, sourceColumn: FollowerCount, isHidden: false, summarizeBy: sum }
+      - { name: LikeCount, dataType: int64, sourceColumn: like_count, isHidden: false, summarizeBy: sum }
+      - { name: CommentCount, dataType: int64, sourceColumn: comment_count, isHidden: false, summarizeBy: sum }
+      - { name: ShareCount, dataType: int64, sourceColumn: share_count, isHidden: false, summarizeBy: sum }
+      - { name: TotalEngagement, dataType: int64, sourceColumn: TotalEngagement, isHidden: false, summarizeBy: sum }
+      - { name: EngagementScore, dataType: double, sourceColumn: engagement_score, isHidden: false, summarizeBy: average }
+      - { name: SentimentScore, dataType: double, sourceColumn: sentiment_score, isHidden: false, summarizeBy: average }
+      - { name: IsTrendingTopic, dataType: boolean, sourceColumn: is_trending_topic, isHidden: false, summarizeBy: none }
+      - { name: IsSpamFlag, dataType: boolean, sourceColumn: spam_flag, isHidden: false, summarizeBy: none }
+
+  - name: DimDate
+    kind: dimension
+    grain: one row per date
+    reqs: [REQ-003, REQ-008, REQ-010]
+    isDateTable: true
+    source:
+      status: stub
+      m: |
+        let
+            Source = #table(
+                type table [
+                    Date = date,
+                    DateKey = Int64.Type,
+                    Year = Int64.Type,
+                    Quarter = Int64.Type,
+                    MonthNumber = Int64.Type,
+                    MonthName = text,
+                    YearMonth = text,
+                    YearMonthNumber = Int64.Type,
+                    WeekNumber = Int64.Type,
+                    DayOfWeekName = text,
+                    DayOfWeekNumber = Int64.Type
+                ],
+                {}
+            )
+        in
+            Source
+    columns:
+      - { name: Date, dataType: dateTime, sourceColumn: Date, isHidden: false, summarizeBy: none }
+      - { name: DateKey, dataType: int64, sourceColumn: DateKey, isHidden: true, summarizeBy: none }
+      - { name: Year, dataType: int64, sourceColumn: Year, isHidden: false, summarizeBy: none }
+      - { name: Quarter, dataType: int64, sourceColumn: Quarter, isHidden: false, summarizeBy: none }
+      - { name: MonthNumber, dataType: int64, sourceColumn: MonthNumber, isHidden: false, summarizeBy: none }
+      - { name: MonthName, dataType: string, sourceColumn: MonthName, isHidden: false, summarizeBy: none }
+      - { name: YearMonth, dataType: string, sourceColumn: YearMonth, isHidden: false, summarizeBy: none }
+      - { name: YearMonthNumber, dataType: int64, sourceColumn: YearMonthNumber, isHidden: false, summarizeBy: none }
+      - { name: WeekNumber, dataType: int64, sourceColumn: WeekNumber, isHidden: false, summarizeBy: none }
+      - { name: DayOfWeekName, dataType: string, sourceColumn: DayOfWeekName, isHidden: false, summarizeBy: none }
+      - { name: DayOfWeekNumber, dataType: int64, sourceColumn: DayOfWeekNumber, isHidden: false, summarizeBy: none }
+
+  - name: DimPlatform
+    kind: dimension
+    grain: one row per platform
+    reqs: [REQ-006]
+    source:
+      status: stub
+      m: |
+        let
+            Source = #table(
+                type table [PlatformKey = Int64.Type, PlatformName = text],
+                {{1, "YouTube"}, {2, "Twitter"}, {3, "Reddit"}}
+            )
+        in
+            Source
+    columns:
+      - { name: PlatformKey, dataType: int64, sourceColumn: PlatformKey, isHidden: true, summarizeBy: none }
+      - { name: PlatformName, dataType: string, sourceColumn: PlatformName, isHidden: false, summarizeBy: none }
+
+  - name: DimTopic
+    kind: dimension
+    grain: one row per topic
+    reqs: [REQ-004, REQ-005]
+    source:
+      status: stub
+      m: |
+        let
+            Source = #table(
+                type table [TopicKey = Int64.Type, TopicName = text],
+                {{1, "Technology"}, {2, "Finance"}, {3, "Politics"}, {4, "Sports"}}
+            )
+        in
+            Source
+    columns:
+      - { name: TopicKey, dataType: int64, sourceColumn: TopicKey, isHidden: true, summarizeBy: none }
+      - { name: TopicName, dataType: string, sourceColumn: TopicName, isHidden: false, summarizeBy: none }
+
+  - name: DimSentiment
+    kind: dimension
+    grain: one row per sentiment label
+    reqs: [REQ-002, REQ-003]
+    source:
+      status: stub
+      m: |
+        let
+            Source = #table(
+                type table [SentimentKey = Int64.Type, SentimentLabel = text],
+                {{1, "Positive"}, {2, "Neutral"}, {3, "Negative"}}
+            )
+        in
+            Source
+    columns:
+      - { name: SentimentKey, dataType: int64, sourceColumn: SentimentKey, isHidden: true, summarizeBy: none }
+      - { name: SentimentLabel, dataType: string, sourceColumn: SentimentLabel, isHidden: false, summarizeBy: none }
+
+  - name: DimLocation
+    kind: dimension
+    grain: one row per location
+    reqs: [REQ-004, REQ-006, REQ-007]
+    source:
+      status: stub
+      m: |
+        let
+            Source = #table(
+                type table [LocationKey = Int64.Type, CountryName = text, RegionName = text],
+                {{1, "USA", "North America"}, {2, "UK", "Europe"}, {3, "Germany", "Europe"}, {4, "Pakistan", "Asia"}}
+            )
+        in
+            Source
+    columns:
+      - { name: LocationKey, dataType: int64, sourceColumn: LocationKey, isHidden: true, summarizeBy: none }
+      - { name: CountryName, dataType: string, sourceColumn: CountryName, isHidden: false, summarizeBy: none }
+      - { name: RegionName, dataType: string, sourceColumn: RegionName, isHidden: false, summarizeBy: none }
+
+  - name: DimLanguage
+    kind: dimension
+    grain: one row per language
+    reqs: [REQ-010]
+    source:
+      status: stub
+      m: |
+        let
+            Source = #table(
+                type table [LanguageKey = Int64.Type, LanguageName = text],
+                {{1, "English"}, {2, "Spanish"}, {3, "French"}, {4, "German"}, {5, "Urdu"}}
+            )
+        in
+            Source
+    columns:
+      - { name: LanguageKey, dataType: int64, sourceColumn: LanguageKey, isHidden: true, summarizeBy: none }
+      - { name: LanguageName, dataType: string, sourceColumn: LanguageName, isHidden: false, summarizeBy: none }
+
+  - name: LookupRiskThreshold
+    kind: lookup
+    grain: one row per threshold type
+    reqs: [REQ-007, KPI-009, ASM-003]
+    source:
+      status: stub
+      m: |
+        let
+            Source = #table(
+                type table [ThresholdType = text, ThresholdValue = Int64.Type, ThresholdUnit = text],
+                {{"Reach", 100000, "Followers"}, {"Engagement", 1000, "Interactions"}}
+            )
+        in
+            Source
+    columns:
+      - { name: ThresholdType, dataType: string, sourceColumn: ThresholdType, isHidden: false, summarizeBy: none }
+      - { name: ThresholdValue, dataType: int64, sourceColumn: ThresholdValue, isHidden: false, summarizeBy: none }
+      - { name: ThresholdUnit, dataType: string, sourceColumn: ThresholdUnit, isHidden: false, summarizeBy: none }
+
+  - name: Measures
+    kind: measures
+    grain: one row per measure
+    reqs: [KPI-001, KPI-002, KPI-003, KPI-004, KPI-005, KPI-006, KPI-007, KPI-008, KPI-009, KPI-010, KPI-011, KPI-012]
+    source:
+      status: stub
+      m: |
+        let
+            Source = #table(type table [MeasureName = text], {{"Placeholder"}})
+        in
+            Source
+    columns:
+      - { name: MeasureName, dataType: string, sourceColumn: MeasureName, isHidden: false, summarizeBy: none }
+
+relationships:
+  - from: "FactPost[DateKey]"
+    to: "DimDate[DateKey]"
+    cardinality: manyToOne
+    crossFilter: single
+    isActive: true
+    role: Date
+  - from: "FactPost[PlatformKey]"
+    to: "DimPlatform[PlatformKey]"
+    cardinality: manyToOne
+    crossFilter: single
+    isActive: true
+    role: Platform
+  - from: "FactPost[TopicKey]"
+    to: "DimTopic[TopicKey]"
+    cardinality: manyToOne
+    crossFilter: single
+    isActive: true
+    role: Topic
+  - from: "FactPost[SentimentKey]"
+    to: "DimSentiment[SentimentKey]"
+    cardinality: manyToOne
+    crossFilter: single
+    isActive: true
+    role: Sentiment
+  - from: "FactPost[LocationKey]"
+    to: "DimLocation[LocationKey]"
+    cardinality: manyToOne
+    crossFilter: single
+    isActive: true
+    role: Location
+  - from: "FactPost[LanguageKey]"
+    to: "DimLanguage[LanguageKey]"
+    cardinality: manyToOne
+    crossFilter: single
+    isActive: true
+    role: Language
+
+measures:
+  - name: Post Count
+    homeTable: Measures
+    expression: COUNTROWS ( FactPost )
+    formatString: "#,0"
+    displayFolder: "Measures\Base"
+    description: Counts all posts in the active filter context. Uses the selected date range. Blank when no rows match the current filter.
+    reqs: [KPI-001]
+  - name: Positive Sentiment Share
+    homeTable: Measures
+    expression: |
+      DIVIDE (
+          CALCULATE (
+              COUNTROWS ( FactPost ),
+              FactPost[SentimentLabel] = "Positive"
+          ),
+          [Post Count]
+      )
+    formatString: "0.0%"
+    displayFolder: "Measures\Base"
+    description: Positive posts divided by total posts. Uses the selected date range. Blank when no posts match the filter.
+    reqs: [KPI-002]
+  - name: Neutral Sentiment Share
+    homeTable: Measures
+    expression: |
+      DIVIDE (
+          CALCULATE (
+              COUNTROWS ( FactPost ),
+              FactPost[SentimentLabel] = "Neutral"
+          ),
+          [Post Count]
+      )
+    formatString: "0.0%"
+    displayFolder: "Measures\Base"
+    description: Neutral posts divided by total posts. Uses the selected date range. Blank when no posts match the filter.
+    reqs: [KPI-003]
+  - name: Negative Sentiment Share
+    homeTable: Measures
+    expression: |
+      DIVIDE (
+          CALCULATE (
+              COUNTROWS ( FactPost ),
+              FactPost[SentimentLabel] = "Negative"
+          ),
+          [Post Count]
+      )
+    formatString: "0.0%"
+    displayFolder: "Measures\Base"
+    description: Negative posts divided by total posts. Uses the selected date range. Blank when no posts match the filter.
+    reqs: [KPI-004]
+  - name: Net Sentiment Score
+    homeTable: Measures
+    expression: "[Positive Sentiment Share] - [Negative Sentiment Share]"
+    formatString: "0.0%"
+    displayFolder: "Measures\Base"
+    description: Positive sentiment share minus negative sentiment share. Uses the selected date range. Blank when no posts match the filter.
+    reqs: [KPI-005]
+  - name: Average Sentiment Strength
+    homeTable: Measures
+    expression: AVERAGE ( FactPost[SentimentScore] )
+    formatString: "0.00"
+    displayFolder: "Measures\Base"
+    description: Average sentiment score across selected posts. Uses the selected date range. Blank when no posts match the filter.
+    reqs: [KPI-006]
+  - name: Total Engagement
+    homeTable: Measures
+    expression: SUM ( FactPost[TotalEngagement] )
+    formatString: "#,0"
+    displayFolder: "Measures\Base"
+    description: Sum of likes, shares, and comments across selected posts. Uses the selected date range. Blank when no posts match the filter.
+    reqs: [KPI-007]
+  - name: Audience Reach
+    homeTable: Measures
+    expression: SUM ( FactPost[FollowerCount] )
+    formatString: "#,0.0,,\"M\""
+    displayFolder: "Measures\Base"
+    description: Sum of follower count across selected posts. Uses the selected date range. Blank when no posts match the filter.
+    reqs: [KPI-008]
+  - name: High-Risk Content Count
+    homeTable: Measures
+    expression: |
+      VAR ReachThreshold =
+          CALCULATE (
+              MAX ( LookupRiskThreshold[ThresholdValue] ),
+              LookupRiskThreshold[ThresholdType] = "Reach"
+          )
+      VAR EngagementThreshold =
+          CALCULATE (
+              MAX ( LookupRiskThreshold[ThresholdValue] ),
+              LookupRiskThreshold[ThresholdType] = "Engagement"
+          )
+      RETURN
+          CALCULATE (
+              COUNTROWS ( FactPost ),
+              FactPost[SentimentLabel] = "Negative",
+              KEEPFILTERS (
+                  OR (
+                      FactPost[FollowerCount] >= ReachThreshold,
+                      FactPost[TotalEngagement] >= EngagementThreshold
+                  )
+              )
+          )
+    formatString: "#,0"
+    displayFolder: "Measures\Base"
+    description: Negative posts meeting the approved reach or engagement thresholds. Uses the selected date range. Blank when no high-risk posts match the current filters.
+    reqs: [KPI-009]
+  - name: Sentiment Change vs Prior Period
+    homeTable: Measures
+    expression: |
+      VAR CurrentValue = [Net Sentiment Score]
+      VAR PreviousValue =
+          CALCULATE (
+              [Net Sentiment Score],
+              DATEADD ( 'DimDate'[Date], -1, MONTH )
+          )
+      RETURN
+          DIVIDE ( CurrentValue - PreviousValue, PreviousValue )
+    formatString: "+0.0%;-0.0%"
+    displayFolder: "Measures\Time Intelligence"
+    description: Current net sentiment score minus the same-length prior period. Uses a month-over-month comparison. Blank when there is no prior period data.
+    reqs: [KPI-010]
+  - name: Rolling 30-Day Net Sentiment
+    homeTable: Measures
+    expression: |
+      VAR AnchorDate = MAX ( 'DimDate'[Date] )
+      RETURN
+          CALCULATE (
+              [Net Sentiment Score],
+              DATESINPERIOD ( 'DimDate'[Date], AnchorDate, -30, DAY )
+          )
+    formatString: "0.0%"
+    displayFolder: "Measures\Time Intelligence"
+    description: Net sentiment score over the previous 30 days ending on the selected date. Uses a rolling 30-day window. Blank when no date range is selected.
+    reqs: [KPI-011]
+  - name: Topic Net Sentiment
+    homeTable: Measures
+    expression: |
+      CALCULATE (
+          [Net Sentiment Score],
+          ALLEXCEPT ( 'DimTopic', 'DimTopic'[TopicName] )
+      )
+    formatString: "0.0%"
+    displayFolder: "Measures\Time Intelligence"
+    description: Net sentiment score evaluated by topic within the selected filters. Uses the selected date range. Blank when the selected topic has no posts.
+    reqs: [KPI-012]

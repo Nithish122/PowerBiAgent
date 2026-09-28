@@ -1,0 +1,16 @@
+﻿{
+    "position":  {
+                     "width":  816,
+                     "y":  258,
+                     "z":  4,
+                     "x":  24,
+                     "tabOrder":  4,
+                     "height":  250
+                 },
+    "name":  "CHT_RollingSentiment",
+    "$schema":  "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+    "visual":  {
+                   "visualType":  "lineChart",
+                   "drillFilterOtherVisuals":  true
+               }
+}

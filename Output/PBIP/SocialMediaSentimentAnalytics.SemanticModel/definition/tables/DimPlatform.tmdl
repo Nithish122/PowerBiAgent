@@ -1,0 +1,22 @@
+table DimPlatform
+	column PlatformKey
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: PlatformKey
+
+	column PlatformName
+		dataType: string
+		summarizeBy: none
+		sourceColumn: PlatformName
+
+	partition DimPlatform = m
+		mode: import
+		source =
+				let
+					Source = #table(
+						type table [PlatformKey = Int64.Type, PlatformName = text],
+						{{1, "YouTube"}, {2, "Twitter"}, {3, "Reddit"}, {4, "Instagram"}, {5, "Facebook"}, {6, "LinkedIn"}}
+					)
+				in
+					Source

@@ -1,0 +1,16 @@
+﻿{
+    "position":  {
+                     "width":  220,
+                     "y":  72,
+                     "z":  10,
+                     "x":  564,
+                     "tabOrder":  10,
+                     "height":  48
+                 },
+    "name":  "SLR_Topic",
+    "$schema":  "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+    "visual":  {
+                   "visualType":  "slicer",
+                   "drillFilterOtherVisuals":  true
+               }
+}

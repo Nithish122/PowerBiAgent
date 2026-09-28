@@ -1,0 +1,82 @@
+table DimDate
+	dataCategory: Time
+
+	column Date
+		dataType: dateTime
+		isKey
+		summarizeBy: none
+		sourceColumn: Date
+
+	column DateKey
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: DateKey
+
+	column Year
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: Year
+
+	column Quarter
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: Quarter
+
+	column MonthNumber
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: MonthNumber
+
+	column MonthName
+		dataType: string
+		sourceColumn: MonthName
+		sortByColumn: MonthNumber
+
+	column YearMonth
+		dataType: string
+		summarizeBy: none
+		sourceColumn: YearMonth
+
+	column YearMonthNumber
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: YearMonthNumber
+
+	column WeekNumber
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: WeekNumber
+
+	column DayOfWeekName
+		dataType: string
+		summarizeBy: none
+		sourceColumn: DayOfWeekName
+
+	column DayOfWeekNumber
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: DayOfWeekNumber
+
+	partition DimDate = m
+		mode: import
+		source =
+				let
+					Source = #table(
+						type table [
+							Date = date,
+							DateKey = Int64.Type,
+							Year = Int64.Type,
+							Quarter = Int64.Type,
+							MonthNumber = Int64.Type,
+							MonthName = text,
+							YearMonth = text,
+							YearMonthNumber = Int64.Type,
+							WeekNumber = Int64.Type,
+							DayOfWeekName = text,
+							DayOfWeekNumber = Int64.Type
+						],
+						{}
+					)
+				in
+					Source

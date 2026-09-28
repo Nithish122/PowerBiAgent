@@ -1,0 +1,336 @@
+document:
+  title: "Social Media Sentiment Analytics — BRD (2-Page Release)"
+  version: "1.1"
+  owner: "Marketing Analytics Product Owner"
+  date: "2026-09-28"
+
+scope:
+  in:
+    - "Leadership and brand team visibility of public social sentiment, engagement, and reputational risk"
+    - "Two report pages: Executive Overview and Sentiment Intelligence"
+    - "Daily refreshed social post data across brand and AI-related topics"
+  out:
+    - "Future BRD v1.0 pages and deeper analysis"
+    - "Author-level, map-based, and drillthrough experiences"
+    - "Customer-level or user-profile analysis"
+
+glossary:
+  - term: "Net Sentiment"
+    definition: "Positive Sentiment Share minus Negative Sentiment Share."
+    ref: "BRD §6"
+  - term: "Prior period"
+    definition: "The same-length period immediately before the selected date range."
+    ref: "BRD §6"
+  - term: "High-Risk Content"
+    definition: "Negative posts where follower count is at or above the reach threshold or engagement is at or above the engagement threshold."
+    ref: "BRD §6"
+  - term: "Reach Threshold"
+    definition: "Provisional threshold of 100,000 followers for risk classification."
+    ref: "BRD §6"
+  - term: "Engagement Threshold"
+    definition: "Provisional threshold of 1,000 interactions for risk classification."
+    ref: "BRD §6"
+
+personas:
+  - id: PER-01
+    name: "Executive Leadership"
+    needs: "Review conversation health and reputational risk over time"
+    device: "desktop"
+  - id: PER-02
+    name: "Brand Management"
+    needs: "Track sentiment performance and risk daily with approved definitions"
+    device: "desktop"
+  - id: PER-03
+    name: "Marketing Teams"
+    needs: "Understand topic and platform performance and engagement drivers"
+    device: "desktop"
+
+requirements:
+  - id: REQ-001
+    type: goal
+    text: "Give leadership and brand teams one trusted view of social sentiment, engagement and reputational risk."
+    ref: "BRD §1"
+  - id: REQ-002
+    type: question
+    text: "What is the public sentiment toward our brand and AI-related topics?"
+    ref: "BRD §3 Q1"
+  - id: REQ-003
+    type: question
+    text: "Is overall sentiment improving or deteriorating over time?"
+    ref: "BRD §3 Q2"
+  - id: REQ-004
+    type: question
+    text: "Which topics generate the most negative sentiment?"
+    ref: "BRD §3 Q3"
+  - id: REQ-005
+    type: question
+    text: "Which topics generate the highest engagement?"
+    ref: "BRD §3 Q5"
+  - id: REQ-006
+    type: question
+    text: "Which platforms drive the most interactions?"
+    ref: "BRD §3 Q6"
+  - id: REQ-007
+    type: question
+    text: "What content presents reputational risk?"
+    ref: "BRD §3 Q13"
+  - id: REQ-008
+    type: question
+    text: "How does current-period sentiment compare with the prior period?"
+    ref: "BRD §3 Q16"
+  - id: REQ-009
+    type: fact
+    text: "The model uses one row per public social post with exactly one date, platform, topic, sentiment, location and language."
+    ref: "BRD §4"
+  - id: REQ-010
+    type: frequency
+    text: "The data refreshes daily and the release supports desktop-only analysis."
+    ref: "BRD §4, §8"
+  - id: REQ-011
+    type: security
+    text: "Public data only; no personal customer data and no author-level detail in this release."
+    ref: "BRD §9"
+  - id: REQ-012
+    type: nonfunctional
+    text: "Each page should load in about five seconds and slicers should respond in about three seconds."
+    ref: "BRD §8"
+  - id: REQ-013
+    type: visual
+    text: "Report visuals must use clear titles, units, and accessibility text with status labels for risk content."
+    ref: "BRD §8"
+  - id: REQ-014
+    type: visual
+    text: "The solution includes one Executive Overview page and one Sentiment Intelligence page."
+    ref: "BRD §7"
+
+kpis:
+  - id: KPI-001
+    name: "Post Count"
+    definition: "Count of posts in filter context."
+    numerator: "post count"
+    denominator: "1"
+    grain: "post"
+    timeBasis: "selected date range"
+    target: null
+    format: "#,0"
+    reqs: [REQ-001, REQ-002, REQ-003]
+  - id: KPI-002
+    name: "Positive Sentiment Share"
+    definition: "Positive posts divided by post count."
+    numerator: "positive posts"
+    denominator: "post count"
+    grain: "post"
+    timeBasis: "selected date range"
+    target: null
+    format: "0.0%"
+    reqs: [REQ-002, REQ-003, REQ-008]
+  - id: KPI-003
+    name: "Neutral Sentiment Share"
+    definition: "Neutral posts divided by post count."
+    numerator: "neutral posts"
+    denominator: "post count"
+    grain: "post"
+    timeBasis: "selected date range"
+    target: null
+    format: "0.0%"
+    reqs: [REQ-002, REQ-003]
+  - id: KPI-004
+    name: "Negative Sentiment Share"
+    definition: "Negative posts divided by post count."
+    numerator: "negative posts"
+    denominator: "post count"
+    grain: "post"
+    timeBasis: "selected date range"
+    target: null
+    format: "0.0%"
+    reqs: [REQ-002, REQ-004, REQ-007]
+  - id: KPI-005
+    name: "Net Sentiment Score"
+    definition: "Positive Sentiment Share minus Negative Sentiment Share."
+    numerator: "positive sentiment share"
+    denominator: "negative sentiment share"
+    grain: "post"
+    timeBasis: "selected date range"
+    target: null
+    format: "0.0%"
+    reqs: [REQ-001, REQ-002, REQ-003, REQ-008]
+  - id: KPI-006
+    name: "Average Sentiment Strength"
+    definition: "Average of sentiment score across selected posts."
+    numerator: "sentiment score"
+    denominator: "post count"
+    grain: "post"
+    timeBasis: "selected date range"
+    target: null
+    format: "0.00"
+    reqs: [REQ-002, REQ-003]
+  - id: KPI-007
+    name: "Total Engagement"
+    definition: "Sum of likes, shares, and comments across selected posts."
+    numerator: "likes + shares + comments"
+    denominator: "1"
+    grain: "post"
+    timeBasis: "selected date range"
+    target: null
+    format: "#,0"
+    reqs: [REQ-001, REQ-005, REQ-006]
+  - id: KPI-008
+    name: "Audience Reach"
+    definition: "Sum of follower count across selected posts."
+    numerator: "follower count"
+    denominator: "1"
+    grain: "post"
+    timeBasis: "selected date range"
+    target: null
+    format: "#,0.0,,\"M\""
+    reqs: [REQ-001, REQ-006, REQ-007]
+  - id: KPI-009
+    name: "High-Risk Content Count"
+    definition: "Count of negative posts where follower count is at or above the reach threshold or engagement is at or above the engagement threshold."
+    numerator: "negative-risk posts"
+    denominator: "1"
+    grain: "post"
+    timeBasis: "selected date range"
+    target: null
+    format: "#,0"
+    reqs: [REQ-007, REQ-013]
+  - id: KPI-010
+    name: "Sentiment Change vs Prior Period"
+    definition: "Net Sentiment Score minus Net Sentiment Score for the same-length prior period."
+    numerator: "current net sentiment score"
+    denominator: "prior-period net sentiment score"
+    grain: "period"
+    timeBasis: "prior period comparison"
+    target: null
+    format: "+0.0%;-0.0%"
+    reqs: [REQ-003, REQ-008]
+  - id: KPI-011
+    name: "Rolling 30-Day Net Sentiment"
+    definition: "Net Sentiment Score over the 30 days ending on the last selected date."
+    numerator: "rolling 30-day positive sentiment share"
+    denominator: "rolling 30-day negative sentiment share"
+    grain: "day"
+    timeBasis: "rolling 30-day window"
+    target: null
+    format: "0.0%"
+    reqs: [REQ-002, REQ-003, REQ-008]
+  - id: KPI-012
+    name: "Topic Net Sentiment"
+    definition: "Net Sentiment Score evaluated per topic using the same calculation as KPI-05."
+    numerator: "positive topic sentiment share"
+    denominator: "negative topic sentiment share"
+    grain: "topic"
+    timeBasis: "selected date range"
+    target: null
+    format: "0.0%"
+    reqs: [REQ-004, REQ-005]
+
+facts:
+  - name: "FactPost"
+    grain: "one row per post"
+    dates: [PostDate]
+    measures: [SentimentScore, FollowerCount, Likes, Shares, Comments]
+    source: SRC-01
+    reqs: [REQ-009]
+
+dimensions:
+  - name: "DimDate"
+    key: "DateKey"
+    attributes: [Date, Year, Quarter, Month, Week]
+    hierarchies: ["Calendar Hierarchy"]
+    reqs: [REQ-003, REQ-008, REQ-010]
+  - name: "DimPlatform"
+    key: "PlatformKey"
+    attributes: [PlatformName]
+    hierarchies: []
+    reqs: [REQ-006]
+  - name: "DimTopic"
+    key: "TopicKey"
+    attributes: [TopicName]
+    hierarchies: []
+    reqs: [REQ-004, REQ-005]
+  - name: "DimSentiment"
+    key: "SentimentKey"
+    attributes: [SentimentName]
+    hierarchies: []
+    reqs: [REQ-002, REQ-003]
+  - name: "DimLocation"
+    key: "LocationKey"
+    attributes: [CountryName, RegionName]
+    hierarchies: ["Location Hierarchy"]
+    reqs: [REQ-004, REQ-006, REQ-007]
+  - name: "DimLanguage"
+    key: "LanguageKey"
+    attributes: [LanguageName]
+    hierarchies: []
+    reqs: [REQ-010]
+
+security:
+  - role: "All stakeholder groups"
+    filterOn: null
+    rule: "Public data only; workspace permissions restrict access; no RLS is required in this release."
+    reqs: [REQ-011]
+
+pages:
+  - name: "Executive Overview"
+    type: executive
+    persona: PER-01
+    question: "What is the public sentiment toward our brand and AI-related topics?"
+    visuals: ["Net Sentiment Score KPI", "Positive / Negative KPI cards", "Net Sentiment Trend", "Engagement by Platform", "Top Negative Topics", "Risk Summary"]
+    reqs: [REQ-002, REQ-003, REQ-004, REQ-005, REQ-006, REQ-007, REQ-008]
+  - name: "Sentiment Intelligence"
+    type: detail
+    persona: PER-02
+    question: "Is overall sentiment improving or deteriorating over time?"
+    visuals: ["Net Sentiment Score KPI", "Sentiment Mix by Month", "Rolling 30-Day Net Sentiment", "Topic Net Sentiment", "Sentiment by Platform"]
+    reqs: [REQ-002, REQ-003, REQ-004, REQ-008]
+
+sources:
+  - id: SRC-01
+    system: "CSV export from social listening platform"
+    object: "Data/social_media_sentiment.csv (BRD source name)"
+    refresh: "daily"
+    status: unknown
+
+gaps:
+  - id: GAP-001
+    reqs: [KPI-001, KPI-002, KPI-003, KPI-004, KPI-005, KPI-006, KPI-007, KPI-008, KPI-009, KPI-010, KPI-011, KPI-012]
+    issue: "No target values are defined for any KPI, so performance thresholds are not yet approved."
+    severity: major
+    blocking: false
+    question: "What target values or threshold limits should be shown on each KPI and scorecard?"
+  - id: GAP-002
+    reqs: [REQ-009]
+    issue: "The BRD source file name and expected column names do not yet match the actual data file in the repository."
+    severity: critical
+    blocking: false
+    question: "What is the canonical input filename and schema for the production CSV?"
+  - id: GAP-003
+    reqs: [REQ-007, KPI-009]
+    issue: "Risk thresholds are described as provisional and pending Brand Management approval."
+    severity: major
+    blocking: false
+    question: "Which approved values should be used for the reach and engagement thresholds in High-Risk Content Count?"
+  - id: GAP-004
+    reqs: [REQ-013]
+    issue: "Business titles, units, and alt text are specified as report requirements but exact visual-level naming conventions are not yet approved."
+    severity: medium
+    blocking: false
+    question: "Which titles and accessibility text patterns should be enforced across all visuals?"
+
+assumptions:
+  - id: ASM-001
+    gap: GAP-001
+    decision: "Display KPI values without a target status until Brand Management confirms the approved benchmark values."
+    impact: "KPI cards will show a value but no green/red comparison state during Phase 1."
+    status: proposed
+  - id: ASM-002
+    gap: GAP-002
+    decision: "Use the current CSV in the Data folder as the model source and rename columns in Power Query to match the BRD schema before production modeling."
+    impact: "The model remains openable even while the exact source name is being confirmed."
+    status: proposed
+  - id: ASM-003
+    gap: GAP-003
+    decision: "Store the provisional reach and engagement threshold values in a threshold table instead of hard-coding them in DAX."
+    impact: "Risk classification remains configurable without changing the semantic model structure."
+    status: proposed

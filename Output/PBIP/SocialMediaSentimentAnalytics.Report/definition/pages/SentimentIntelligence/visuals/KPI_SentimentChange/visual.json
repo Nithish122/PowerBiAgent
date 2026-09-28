@@ -1,0 +1,16 @@
+﻿{
+    "position":  {
+                     "width":  280,
+                     "y":  132,
+                     "z":  3,
+                     "x":  960,
+                     "tabOrder":  3,
+                     "height":  110
+                 },
+    "name":  "KPI_SentimentChange",
+    "$schema":  "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+    "visual":  {
+                   "visualType":  "cardVisual",
+                   "drillFilterOtherVisuals":  true
+               }
+}

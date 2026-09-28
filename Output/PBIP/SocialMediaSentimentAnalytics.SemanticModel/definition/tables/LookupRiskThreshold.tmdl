@@ -1,0 +1,26 @@
+table LookupRiskThreshold
+	column ThresholdType
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ThresholdType
+
+	column ThresholdValue
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: ThresholdValue
+
+	column ThresholdUnit
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ThresholdUnit
+
+	partition LookupRiskThreshold = m
+		mode: import
+		source =
+				let
+					Source = #table(
+						type table [ThresholdType = text, ThresholdValue = Int64.Type, ThresholdUnit = text],
+						{{"Reach", 100000, "Followers"}, {"Engagement", 1000, "Interactions"}}
+					)
+				in
+					Source

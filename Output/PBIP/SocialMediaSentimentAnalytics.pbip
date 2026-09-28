@@ -1,0 +1,13 @@
+﻿{
+    "version":  "1.0",
+    "artifacts":  [
+                      {
+                          "semanticModel":  {
+                                                "path":  "SocialMediaSentimentAnalytics.SemanticModel"
+                                            }
+                      }
+                  ],
+    "settings":  {
+                     "enableAutoRecovery":  true
+                 }
+}

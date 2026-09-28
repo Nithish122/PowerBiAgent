@@ -1,0 +1,16 @@
+﻿{
+    "position":  {
+                     "width":  616,
+                     "y":  524,
+                     "z":  6,
+                     "x":  24,
+                     "tabOrder":  6,
+                     "height":  172
+                 },
+    "name":  "TBL_TopicNetSentiment",
+    "$schema":  "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+    "visual":  {
+                   "visualType":  "tableEx",
+                   "drillFilterOtherVisuals":  true
+               }
+}

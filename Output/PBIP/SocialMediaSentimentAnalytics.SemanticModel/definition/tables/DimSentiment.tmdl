@@ -1,0 +1,22 @@
+table DimSentiment
+	column SentimentKey
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: SentimentKey
+
+	column SentimentLabel
+		dataType: string
+		summarizeBy: none
+		sourceColumn: SentimentLabel
+
+	partition DimSentiment = m
+		mode: import
+		source =
+				let
+					Source = #table(
+						type table [SentimentKey = Int64.Type, SentimentLabel = text],
+						{{1, "Positive"}, {2, "Neutral"}, {3, "Negative"}}
+					)
+				in
+					Source
