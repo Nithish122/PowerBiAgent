@@ -90,6 +90,9 @@ pages:
 - Include a `DimDate` table built in M and marked as the date table when any time analysis exists.
 - DAX must be complete. No `...`, `TODO`, or pseudo-code in any expression.
 - Names follow the naming rules. Names with spaces are quoted in DAX and TMDL (`'Dim Date'[Month]`).
+- Never use reserved Power BI object names such as `Measures` in TMDL without renaming or quoting. Prefer a non-reserved PascalCase table name such as `AllMeasures`.
+- Save generated PBIP/PBIR/TMDL/JSON content as UTF-8 without BOM. Any file with a BOM causes Power BI Desktop definition parsing failures.
+- Validate the root `.pbip` file schema before opening. For report projects, keep the root artifact as `{"version":"1.0","artifacts":[{"report":{"path":"<Name>.Report"}}]...}` and do not point it at the semantic model artifact.
 
 ## Never
 - Invent business definitions, targets, thresholds, fiscal rules, security mappings or real data sources. Use a stub plus an `ASM` instead.

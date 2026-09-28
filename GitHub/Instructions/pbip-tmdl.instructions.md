@@ -131,6 +131,9 @@ role 'Regional Manager'
     pages/<pageName>/visuals/<visualName>/visual.json   (name = folder name, e.g. KPI_MentionCount)
 ```
 - Copy `visual.json` structure from the template visual. Set `position` (x, y, z, width, height, tabOrder) from `report.yaml`.
+- Always save every generated JSON/TMDL file as UTF-8 without BOM. Power BI Desktop rejects files with `EF BB BF` at the start of a PBIR or TMDL file.
+- Validate the root `.pbip` artifact list before opening the project. For a report-backed project, the schema is `{"version":"1.0","artifacts":[{"report":{"path":"<Name>.Report"}}],"settings":{"enableAutoRecovery":true}}` and not a semantic-model artifact.
+- Do not reuse reserved table names such as `Measures`; use a non-reserved name such as `AllMeasures` instead. If a name is reserved, quote it only when absolutely required and prefer renaming to a valid PascalCase object name.
 - Field binding pattern inside `query.queryState.<Role>.projections[]`:
   - Measure: `{"field":{"Measure":{"Expression":{"SourceRef":{"Entity":"Measures"}},"Property":"Mention Count"}},"queryRef":"Measures.Mention Count"}`
   - Column: `{"field":{"Column":{"Expression":{"SourceRef":{"Entity":"DimDate"}},"Property":"MonthName"}},"queryRef":"DimDate.MonthName"}`
