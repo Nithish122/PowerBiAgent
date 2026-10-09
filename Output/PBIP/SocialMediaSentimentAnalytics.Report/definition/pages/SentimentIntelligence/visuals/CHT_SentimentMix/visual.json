@@ -1,17 +1,16 @@
 {
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "CHT_SentimentMix",
   "position": {
-    "width": 400,
+    "x": 856,
     "y": 258,
     "z": 5,
-    "x": 856,
-    "tabOrder": 5,
-    "height": 250
+    "height": 250,
+    "width": 400,
+    "tabOrder": 5
   },
-  "name": "CHT_SentimentMix",
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
   "visual": {
     "visualType": "lineClusteredColumnComboChart",
-    "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
         "Category": {
@@ -27,7 +26,8 @@
                   "Property": "YearMonth"
                 }
               },
-              "queryRef": "DimDate.YearMonth"
+              "queryRef": "DimDate.YearMonth",
+              "active": true
             }
           ]
         },
@@ -75,6 +75,67 @@
           ]
         }
       }
-    }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "c1f97eda3330b2a0056a",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DimDate"
+              }
+            },
+            "Property": "YearMonth"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "9fd09f79233200c51309",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "AllMeasures"
+              }
+            },
+            "Property": "Positive Sentiment Share"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "39077533e6e36029009c",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "AllMeasures"
+              }
+            },
+            "Property": "Negative Sentiment Share"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "6f7e31926aae4a3490ab",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "AllMeasures"
+              }
+            },
+            "Property": "Neutral Sentiment Share"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }

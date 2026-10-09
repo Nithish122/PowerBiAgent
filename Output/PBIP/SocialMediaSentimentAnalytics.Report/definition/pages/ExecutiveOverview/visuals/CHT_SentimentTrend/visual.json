@@ -1,17 +1,16 @@
 {
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "CHT_SentimentTrend",
   "position": {
-    "width": 816,
+    "x": 24,
     "y": 258,
     "z": 4,
-    "x": 24,
-    "tabOrder": 4,
-    "height": 250
+    "height": 250,
+    "width": 816,
+    "tabOrder": 4
   },
-  "name": "CHT_SentimentTrend",
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
   "visual": {
     "visualType": "lineChart",
-    "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
         "Category": {
@@ -27,7 +26,8 @@
                   "Property": "Date"
                 }
               },
-              "queryRef": "DimDate.Date"
+              "queryRef": "DimDate.Date",
+              "active": true
             }
           ]
         },
@@ -49,6 +49,7 @@
           ]
         }
       }
-    }
+    },
+    "drillFilterOtherVisuals": true
   }
 }

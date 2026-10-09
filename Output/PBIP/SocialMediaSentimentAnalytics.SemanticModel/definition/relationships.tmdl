@@ -21,3 +21,4 @@ relationship fc6f9db0-b5d4-4865-a91b-3f1af11c68ef
 relationship f7c6d6f0-7d4b-43d8-a0dc-0e6c6bbd500b
 	fromColumn: FactPost.LanguageKey
 	toColumn: DimLanguage.LanguageKey
+

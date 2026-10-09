@@ -1,0 +1,158 @@
+table AllMeasures
+	lineageTag: 8ec4536e-2c1c-469c-a094-7604cb228f32
+
+	/// Counts all posts in the active filter context. Uses the selected date range. Blank when no rows match the current filter.
+	measure 'Post Count' = COUNTROWS ( FactPost )
+		formatString: #,0
+		displayFolder: Measures\Base
+		lineageTag: 0b3f0765-0288-4542-b0ea-200dd85c06b2
+
+	/// Positive posts divided by total posts. Uses the selected date range. Blank when no posts match the filter.
+	measure 'Positive Sentiment Share' = ```
+			DIVIDE (
+				CALCULATE (
+					COUNTROWS ( FactPost ),
+					FactPost[SentimentLabel] = "Positive"
+				),
+				[Post Count]
+			)
+			
+			```
+		lineageTag: 613d09bf-3aeb-46b3-a71a-1d93c37a6a27
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Neutral posts divided by total posts. Uses the selected date range. Blank when no posts match the filter.
+	measure 'Neutral Sentiment Share' = ```
+			DIVIDE (
+				CALCULATE (
+					COUNTROWS ( FactPost ),
+					FactPost[SentimentLabel] = "Neutral"
+				),
+				[Post Count]
+			)
+			
+			```
+		lineageTag: 5666fc38-9b4b-4ce6-969b-22d89c88fe1c
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Negative posts divided by total posts. Uses the selected date range. Blank when no posts match the filter.
+	measure 'Negative Sentiment Share' = ```
+			DIVIDE (
+				CALCULATE (
+					COUNTROWS ( FactPost ),
+					FactPost[SentimentLabel] = "Negative"
+				),
+				[Post Count]
+			)
+			
+			```
+		lineageTag: 565c29cf-f5a9-4552-890b-3a37c59f56b7
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Positive sentiment share minus negative sentiment share. Uses the selected date range. Blank when no posts match the filter.
+	measure 'Net Sentiment Score' = [Positive Sentiment Share] - [Negative Sentiment Share]
+		formatString: 0.0%
+		displayFolder: Measures\Base
+		lineageTag: 2565784e-0593-437d-9220-e6f0ccc8e64b
+
+	/// Average sentiment score across selected posts. Uses the selected date range. Blank when no posts match the filter.
+	measure 'Average Sentiment Strength' = AVERAGE ( FactPost[SentimentScore] )
+		formatString: 0.00
+		displayFolder: Measures\Base
+		lineageTag: 7c322203-9f74-45e5-91b2-72ad89d9ef9f
+
+	/// Sum of likes, shares, and comments across selected posts. Uses the selected date range. Blank when no posts match the filter.
+	measure 'Total Engagement' = SUM ( FactPost[TotalEngagement] )
+		formatString: #,0
+		displayFolder: Measures\Base
+		lineageTag: c75e61cb-53fc-43d3-9f4a-cf2916e470ba
+
+	/// Sum of follower count across selected posts. Uses the selected date range. Blank when no posts match the filter.
+	measure 'Audience Reach' = SUM ( FactPost[FollowerCount] )
+		formatString: #,0.0,,"M"
+		displayFolder: Measures\Base
+		lineageTag: fd0d92e9-c838-4609-ad7d-d8433417bfec
+
+	/// Negative posts meeting the approved reach or engagement thresholds. Uses the selected date range. Blank when no high-risk posts match the current filters.
+	measure 'High-Risk Content Count' = ```
+			VAR ReachThreshold =
+				CALCULATE (
+					MAX ( LookupRiskThreshold[ThresholdValue] ),
+					LookupRiskThreshold[ThresholdType] = "Reach"
+				)
+			VAR EngagementThreshold =
+				CALCULATE (
+					MAX ( LookupRiskThreshold[ThresholdValue] ),
+					LookupRiskThreshold[ThresholdType] = "Engagement"
+				)
+			RETURN
+				CALCULATE (
+					COUNTROWS ( FactPost ),
+					FactPost[SentimentLabel] = "Negative",
+					KEEPFILTERS (
+						OR (
+							FactPost[FollowerCount] >= ReachThreshold,
+							FactPost[TotalEngagement] >= EngagementThreshold
+						)
+					)
+				)
+			
+			```
+		formatString: 0
+		lineageTag: 0cc606f7-682e-4bea-b614-a0c26103a74d
+
+	/// Current net sentiment score minus the same-length prior period. Uses a month-over-month comparison. Blank when there is no prior period data.
+	measure 'Sentiment Change vs Prior Period' = ```
+			VAR CurrentValue = [Net Sentiment Score]
+			VAR PreviousValue =
+				CALCULATE (
+					[Net Sentiment Score],
+					DATEADD ( 'DimDate'[Date], -1, MONTH )
+				)
+			RETURN
+				DIVIDE ( CurrentValue - PreviousValue, PreviousValue )
+			
+			```
+		lineageTag: 75f4c7a0-9799-4dff-aa4b-c8d3dadf8f01
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Net sentiment score over the previous 30 days ending on the selected date. Uses a rolling 30-day window. Blank when no date range is selected.
+	measure 'Rolling 30-Day Net Sentiment' = ```
+			VAR AnchorDate = MAX ( 'DimDate'[Date] )
+			RETURN
+				CALCULATE (
+					[Net Sentiment Score],
+					DATESINPERIOD ( 'DimDate'[Date], AnchorDate, -30, DAY )
+				)
+			
+			```
+		lineageTag: 7fa861ba-35fd-4952-b123-e985f395c665
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Net sentiment score evaluated by topic within the selected filters. Uses the selected date range. Blank when the selected topic has no posts.
+	measure 'Topic Net Sentiment' = ```
+			CALCULATE (
+				[Net Sentiment Score],
+				ALLEXCEPT ( 'DimTopic', 'DimTopic'[TopicName] )
+			)
+			
+			```
+		lineageTag: 91968216-684b-4438-923f-28210464a930
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column MeasureName
+		dataType: string
+		lineageTag: 7b7ea15b-4d55-4a64-8ae5-7421beaaff2f
+		summarizeBy: none
+		sourceColumn: MeasureName
+
+	partition Measures = m
+		mode: import
+		source = #table(type table [MeasureName = text], {{"Placeholder"}})
+

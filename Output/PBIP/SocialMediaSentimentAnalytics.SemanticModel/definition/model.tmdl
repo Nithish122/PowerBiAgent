@@ -11,5 +11,17 @@ annotation __PBI_TimeIntelligenceEnabled = 0
 
 annotation PBI_ProTooling = ["DevMode"]
 
+annotation PBI_QueryOrder = ["DimDate","DimLanguage","DimLocation","DimPlatform","DimSentiment","DimTopic","FactPost","LookupRiskThreshold","AllMeasures"]
+
+ref table DimDate
+ref table DimLanguage
+ref table DimLocation
+ref table DimPlatform
+ref table DimSentiment
+ref table DimTopic
+ref table FactPost
+ref table LookupRiskThreshold
+ref table AllMeasures
+
 ref cultureInfo en-US
 

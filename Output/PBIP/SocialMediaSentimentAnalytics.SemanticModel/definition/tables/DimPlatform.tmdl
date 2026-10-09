@@ -1,12 +1,16 @@
 table DimPlatform
+	lineageTag: 084a440d-8595-4d4b-a321-3f306b7df06a
+
 	column PlatformKey
 		dataType: int64
 		isHidden
+		lineageTag: 6ff8b1ed-86ec-4d59-a07f-cc6df5184056
 		summarizeBy: none
 		sourceColumn: PlatformKey
 
 	column PlatformName
 		dataType: string
+		lineageTag: 65905ea8-cc7d-43c8-bdad-9a4d71e3ed97
 		summarizeBy: none
 		sourceColumn: PlatformName
 
@@ -20,3 +24,4 @@ table DimPlatform
 					)
 				in
 					Source
+

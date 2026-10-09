@@ -1,1 +1,13 @@
-{"version":"1.0","artifacts":[{"report":{"path":"SocialMediaSentimentAnalytics.Report"}}],"settings":{"enableAutoRecovery":true}}
+{
+  "version": "1.0",
+  "artifacts": [
+    {
+      "report": {
+        "path": "SocialMediaSentimentAnalytics.Report"
+      }
+    }
+  ],
+  "settings": {
+    "enableAutoRecovery": true
+  }
+}

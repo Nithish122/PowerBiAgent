@@ -1,17 +1,16 @@
 {
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "SLR_Language",
   "position": {
-    "width": 180,
+    "x": 1064,
     "y": 72,
     "z": 13,
-    "x": 1064,
-    "tabOrder": 13,
-    "height": 48
+    "height": 48,
+    "width": 180,
+    "tabOrder": 13
   },
-  "name": "SLR_Language",
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
   "visual": {
     "visualType": "slicer",
-    "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
         "Values": {
@@ -27,11 +26,13 @@
                   "Property": "LanguageName"
                 }
               },
-              "queryRef": "DimLanguage.LanguageName"
+              "queryRef": "DimLanguage.LanguageName",
+              "active": true
             }
           ]
         }
       }
-    }
+    },
+    "drillFilterOtherVisuals": true
   }
 }

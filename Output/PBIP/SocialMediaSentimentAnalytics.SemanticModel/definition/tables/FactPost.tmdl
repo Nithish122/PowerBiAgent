@@ -1,120 +1,278 @@
 table FactPost
+	lineageTag: 0c155596-fd4a-4bd3-9581-77863934422e
+
 	column PostKey
-		dataType: int64
+		dataType: double
 		isHidden
-		summarizeBy: none
+		lineageTag: bf2905ae-13d4-446f-a722-6567baa21bfe
+		summarizeBy: count
 		sourceColumn: PostKey
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column DateKey
 		dataType: int64
 		isHidden
+		lineageTag: f64c6bd9-5489-4810-8b46-1766e4f31bd4
 		summarizeBy: none
 		sourceColumn: DateKey
 
 	column PlatformKey
 		dataType: int64
 		isHidden
+		lineageTag: 0b6f5b02-9986-4db9-8cf6-df361c6ed45b
 		summarizeBy: none
 		sourceColumn: PlatformKey
 
 	column TopicKey
 		dataType: int64
 		isHidden
+		lineageTag: 7210cdbe-c78f-4399-a49d-e36203812706
 		summarizeBy: none
 		sourceColumn: TopicKey
 
 	column SentimentKey
 		dataType: int64
 		isHidden
+		lineageTag: 98b837db-3bdf-494c-a13a-f14cb8083ed2
 		summarizeBy: none
 		sourceColumn: SentimentKey
 
 	column LocationKey
 		dataType: int64
 		isHidden
+		lineageTag: 382cb143-31eb-45b4-82a9-d9b428cc9a76
 		summarizeBy: none
 		sourceColumn: LocationKey
 
 	column LanguageKey
 		dataType: int64
 		isHidden
+		lineageTag: 8f0bd5cb-1062-4d98-b1fc-2e8c14c75a27
 		summarizeBy: none
 		sourceColumn: LanguageKey
 
 	column PostDate
 		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 072f5f50-ef12-47fe-9406-6116f628cc07
 		summarizeBy: none
 		sourceColumn: PostDate
 
+		annotation UnderlyingDateTimeDataType = Date
+
 	column PlatformName
 		dataType: string
+		lineageTag: fac64f6a-1ad3-43d7-8be6-aec4cb4cfdf6
 		summarizeBy: none
 		sourceColumn: platform
 
 	column TopicName
 		dataType: string
+		lineageTag: 356d9056-2157-4fe9-8cb3-9e327e84cc61
 		summarizeBy: none
 		sourceColumn: topic_category
 
 	column SentimentLabel
 		dataType: string
+		lineageTag: d45ba233-92ac-4139-bdf3-436d605d77b8
 		summarizeBy: none
 		sourceColumn: sentiment_label
 
 	column UserLocation
 		dataType: string
+		lineageTag: c1e600ac-449c-4d4a-82e7-3efe4e791e79
 		summarizeBy: none
 		sourceColumn: user_location
 
 	column LanguageName
 		dataType: string
+		lineageTag: d0bd7b46-5c3e-4777-bc7f-0370a335ca02
 		summarizeBy: none
 		sourceColumn: language
 
 	column FollowerCount
 		dataType: int64
+		lineageTag: 1905b7e5-7e95-4322-83d8-789dadbdbcf3
 		summarizeBy: sum
 		sourceColumn: FollowerCount
 
 	column LikeCount
 		dataType: int64
+		lineageTag: c18424bc-761d-48ff-9802-1d646608a126
 		summarizeBy: sum
 		sourceColumn: like_count
 
 	column CommentCount
 		dataType: int64
+		lineageTag: 8111e150-e975-4dda-840b-7bfb5b7c804f
 		summarizeBy: sum
 		sourceColumn: comment_count
 
 	column ShareCount
 		dataType: int64
+		lineageTag: 5c2b65e7-33d6-4f70-8cbc-65b395aa056a
 		summarizeBy: sum
 		sourceColumn: share_count
 
 	column TotalEngagement
 		dataType: int64
+		lineageTag: 2d8949a8-6cf1-47f7-abac-6c1990fae2a7
 		summarizeBy: sum
 		sourceColumn: TotalEngagement
 
 	column EngagementScore
 		dataType: double
+		lineageTag: 22f15c8e-4c24-4c1d-abe2-a8d5d3aaeb69
 		summarizeBy: average
 		sourceColumn: engagement_score
 
 	column SentimentScore
 		dataType: double
+		lineageTag: 3b018877-6c57-431e-b353-98b11f20d5ba
 		summarizeBy: average
 		sourceColumn: sentiment_score
 
 	column IsTrendingTopic
 		dataType: boolean
+		lineageTag: 98de6b56-e02c-43b5-a0d3-c2cd3409dcca
 		summarizeBy: none
 		sourceColumn: is_trending_topic
 
 	column IsSpamFlag
 		dataType: boolean
+		lineageTag: 9ea99c15-309d-4992-892c-79f7a4ef3a2a
 		summarizeBy: none
 		sourceColumn: spam_flag
+
+	column post_id
+		dataType: string
+		lineageTag: e74386eb-740f-4c67-8aba-a430a7a38097
+		summarizeBy: none
+		sourceColumn: post_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column user_id
+		dataType: string
+		lineageTag: 79276bd1-f0bf-4632-975a-7809d3978255
+		summarizeBy: none
+		sourceColumn: user_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column username
+		dataType: string
+		lineageTag: d6805d25-bdeb-4c1a-8609-3e235d5e579a
+		summarizeBy: none
+		sourceColumn: username
+
+		annotation SummarizationSetBy = Automatic
+
+	column user_verified
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 72082109-7c56-4f91-bee3-0fe4d3cc3cd9
+		summarizeBy: none
+		sourceColumn: user_verified
+
+		annotation SummarizationSetBy = Automatic
+
+	column user_followers_count
+		dataType: int64
+		formatString: 0
+		lineageTag: 74794253-01f5-43e7-ab56-10e176c768e7
+		summarizeBy: sum
+		sourceColumn: user_followers_count
+
+		annotation SummarizationSetBy = Automatic
+
+	column post_text
+		dataType: string
+		lineageTag: 2e4fa381-e448-4a75-89d3-a4ac40f77901
+		summarizeBy: none
+		sourceColumn: post_text
+
+		annotation SummarizationSetBy = Automatic
+
+	column hashtags
+		dataType: string
+		lineageTag: f3370aa4-17b9-4263-a9e8-6a5d98df144a
+		summarizeBy: none
+		sourceColumn: hashtags
+
+		annotation SummarizationSetBy = Automatic
+
+	column mentions
+		dataType: string
+		lineageTag: 4116f795-97e1-4b2c-9be0-2289507a7091
+		summarizeBy: none
+		sourceColumn: mentions
+
+		annotation SummarizationSetBy = Automatic
+
+	column post_length
+		dataType: int64
+		formatString: 0
+		lineageTag: 19160fc7-0917-42c3-abdc-9f27de0c3f0f
+		summarizeBy: sum
+		sourceColumn: post_length
+
+		annotation SummarizationSetBy = Automatic
+
+	column posted_datetime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 4237177c-8190-418b-96eb-0e977043ed22
+		summarizeBy: none
+		sourceColumn: posted_datetime
+
+		annotation SummarizationSetBy = Automatic
+
+	column day_of_week
+		dataType: string
+		lineageTag: e7bc61c8-b004-48ec-b484-d2d8f8fc62e2
+		summarizeBy: none
+		sourceColumn: day_of_week
+
+		annotation SummarizationSetBy = Automatic
+
+	column emotion_label
+		dataType: string
+		lineageTag: 24fdfbb2-a90d-4d89-8037-29a5c754280f
+		summarizeBy: none
+		sourceColumn: emotion_label
+
+		annotation SummarizationSetBy = Automatic
+
+	column toxicity_score
+		dataType: double
+		lineageTag: 19c0bf82-5814-42fd-9bc8-d16a74eacdfc
+		summarizeBy: sum
+		sourceColumn: toxicity_score
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column sarcasm_detected
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 6078682c-2519-4a7e-8f3d-06fe4d03e7bc
+		summarizeBy: none
+		sourceColumn: sarcasm_detected
+
+		annotation SummarizationSetBy = Automatic
+
+	column data_source_url
+		dataType: string
+		lineageTag: d3b53604-3275-4bd4-944e-d4631ddbf877
+		summarizeBy: none
+		sourceColumn: data_source_url
+
+		annotation SummarizationSetBy = Automatic
 
 	partition FactPost = m
 		mode: import
@@ -169,3 +327,4 @@ table FactPost
 					AddFollowerCount = Table.AddColumn(AddTotalEngagement, "FollowerCount", each [user_followers_count], Int64.Type)
 				in
 					AddFollowerCount
+

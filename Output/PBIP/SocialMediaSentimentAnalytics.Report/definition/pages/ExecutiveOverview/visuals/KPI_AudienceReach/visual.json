@@ -1,19 +1,35 @@
 {
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "KPI_AudienceReach",
   "position": {
-    "width": 280,
+    "x": 960,
     "y": 132,
     "z": 3,
-    "x": 960,
-    "tabOrder": 3,
-    "height": 110
+    "height": 110,
+    "width": 280,
+    "tabOrder": 3
   },
-  "name": "KPI_AudienceReach",
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
   "visual": {
     "visualType": "cardVisual",
-    "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AllMeasures"
+                    }
+                  },
+                  "Property": "Audience Reach"
+                }
+              },
+              "queryRef": "AllMeasures.Audience Reach"
+            }
+          ]
+        },
         "Values": {
           "projections": [
             {
@@ -31,7 +47,44 @@
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "AllMeasures"
+                  }
+                },
+                "Property": "Audience Reach"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
       }
-    }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "3741c1c061068e1a6e26",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "AllMeasures"
+              }
+            },
+            "Property": "Audience Reach"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }

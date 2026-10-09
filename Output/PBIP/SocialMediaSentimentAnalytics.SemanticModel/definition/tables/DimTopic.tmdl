@@ -1,12 +1,16 @@
 table DimTopic
+	lineageTag: abcd84d4-ac2d-4504-becc-6da8ca1a6e4d
+
 	column TopicKey
 		dataType: int64
 		isHidden
+		lineageTag: c4662116-30b4-4203-9d82-ce8baccf7a93
 		summarizeBy: none
 		sourceColumn: TopicKey
 
 	column TopicName
 		dataType: string
+		lineageTag: 5b7dae40-d678-4c74-b7e1-a02f494952c7
 		summarizeBy: none
 		sourceColumn: TopicName
 
@@ -20,3 +24,4 @@ table DimTopic
 					)
 				in
 					Source
+

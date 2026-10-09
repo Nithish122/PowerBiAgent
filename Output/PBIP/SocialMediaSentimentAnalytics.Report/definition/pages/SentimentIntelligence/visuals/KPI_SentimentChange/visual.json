@@ -1,19 +1,35 @@
 {
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "KPI_SentimentChange",
   "position": {
-    "width": 280,
+    "x": 960,
     "y": 132,
     "z": 3,
-    "x": 960,
-    "tabOrder": 3,
-    "height": 110
+    "height": 110,
+    "width": 280,
+    "tabOrder": 3
   },
-  "name": "KPI_SentimentChange",
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
   "visual": {
     "visualType": "cardVisual",
-    "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AllMeasures"
+                    }
+                  },
+                  "Property": "Sentiment Change vs Prior Period"
+                }
+              },
+              "queryRef": "AllMeasures.Sentiment Change vs Prior Period"
+            }
+          ]
+        },
         "Values": {
           "projections": [
             {
@@ -31,7 +47,44 @@
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "AllMeasures"
+                  }
+                },
+                "Property": "Sentiment Change vs Prior Period"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
       }
-    }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "dbc9e4ad002d3b5aa932",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "AllMeasures"
+              }
+            },
+            "Property": "Sentiment Change vs Prior Period"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }

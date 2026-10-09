@@ -1,19 +1,35 @@
 {
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "KPI_NegativeShare",
   "position": {
-    "width": 280,
+    "x": 648,
     "y": 132,
     "z": 2,
-    "x": 648,
-    "tabOrder": 2,
-    "height": 110
+    "height": 110,
+    "width": 280,
+    "tabOrder": 2
   },
-  "name": "KPI_NegativeShare",
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
   "visual": {
     "visualType": "cardVisual",
-    "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AllMeasures"
+                    }
+                  },
+                  "Property": "Negative Sentiment Share"
+                }
+              },
+              "queryRef": "AllMeasures.Negative Sentiment Share"
+            }
+          ]
+        },
         "Values": {
           "projections": [
             {
@@ -31,7 +47,44 @@
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "AllMeasures"
+                  }
+                },
+                "Property": "Negative Sentiment Share"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
       }
-    }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "38bccb0520a659c55072",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "AllMeasures"
+              }
+            },
+            "Property": "Negative Sentiment Share"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }

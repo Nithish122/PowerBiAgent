@@ -1,19 +1,35 @@
 {
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "KPI_PositiveShare",
   "position": {
-    "width": 280,
+    "x": 24,
     "y": 132,
     "z": 0,
-    "x": 24,
-    "tabOrder": 0,
-    "height": 110
+    "height": 110,
+    "width": 280,
+    "tabOrder": 0
   },
-  "name": "KPI_PositiveShare",
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
   "visual": {
     "visualType": "cardVisual",
-    "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AllMeasures"
+                    }
+                  },
+                  "Property": "Positive Sentiment Share"
+                }
+              },
+              "queryRef": "AllMeasures.Positive Sentiment Share"
+            }
+          ]
+        },
         "Values": {
           "projections": [
             {
@@ -31,7 +47,44 @@
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "AllMeasures"
+                  }
+                },
+                "Property": "Positive Sentiment Share"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
       }
-    }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "505c85b21a8e12546dc5",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "AllMeasures"
+              }
+            },
+            "Property": "Positive Sentiment Share"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }

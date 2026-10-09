@@ -1,17 +1,22 @@
 table DimLocation
+	lineageTag: 302a5bd8-8721-46ce-8dfd-5597336da214
+
 	column LocationKey
 		dataType: int64
 		isHidden
+		lineageTag: c1760315-9ff8-40a6-bc1b-7c9464218105
 		summarizeBy: none
 		sourceColumn: LocationKey
 
 	column CountryName
 		dataType: string
+		lineageTag: 4538fcfc-2bb4-4b5b-a7c9-5e48d53d5c0f
 		summarizeBy: none
 		sourceColumn: CountryName
 
 	column RegionName
 		dataType: string
+		lineageTag: 132161a3-a17e-4302-b8b2-06b53d96f124
 		summarizeBy: none
 		sourceColumn: RegionName
 
@@ -25,3 +30,4 @@ table DimLocation
 					)
 				in
 					Source
+

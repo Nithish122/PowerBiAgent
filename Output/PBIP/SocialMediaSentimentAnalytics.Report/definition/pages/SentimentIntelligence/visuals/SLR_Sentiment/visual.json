@@ -1,17 +1,16 @@
 {
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "SLR_Sentiment",
   "position": {
-    "width": 180,
+    "x": 864,
     "y": 72,
     "z": 12,
-    "x": 864,
-    "tabOrder": 12,
-    "height": 48
+    "height": 48,
+    "width": 180,
+    "tabOrder": 12
   },
-  "name": "SLR_Sentiment",
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
   "visual": {
     "visualType": "slicer",
-    "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
         "Values": {
@@ -27,11 +26,13 @@
                   "Property": "SentimentLabel"
                 }
               },
-              "queryRef": "DimSentiment.SentimentLabel"
+              "queryRef": "DimSentiment.SentimentLabel",
+              "active": true
             }
           ]
         }
       }
-    }
+    },
+    "drillFilterOtherVisuals": true
   }
 }

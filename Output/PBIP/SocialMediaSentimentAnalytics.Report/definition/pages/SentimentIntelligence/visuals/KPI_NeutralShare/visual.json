@@ -1,19 +1,35 @@
 {
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "KPI_NeutralShare",
   "position": {
-    "width": 280,
+    "x": 336,
     "y": 132,
     "z": 1,
-    "x": 336,
-    "tabOrder": 1,
-    "height": 110
+    "height": 110,
+    "width": 280,
+    "tabOrder": 1
   },
-  "name": "KPI_NeutralShare",
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
   "visual": {
     "visualType": "cardVisual",
-    "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AllMeasures"
+                    }
+                  },
+                  "Property": "Neutral Sentiment Share"
+                }
+              },
+              "queryRef": "AllMeasures.Neutral Sentiment Share"
+            }
+          ]
+        },
         "Values": {
           "projections": [
             {
@@ -31,7 +47,44 @@
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "AllMeasures"
+                  }
+                },
+                "Property": "Neutral Sentiment Share"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
       }
-    }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "5b86ae3031005d567640",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "AllMeasures"
+              }
+            },
+            "Property": "Neutral Sentiment Share"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }

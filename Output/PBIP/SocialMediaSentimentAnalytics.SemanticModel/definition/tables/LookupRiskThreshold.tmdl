@@ -1,16 +1,21 @@
 table LookupRiskThreshold
+	lineageTag: a0f65df0-cdae-4e71-8526-40ed767236e3
+
 	column ThresholdType
 		dataType: string
+		lineageTag: 1162d238-cbeb-4429-ad7c-271c7f3f0f69
 		summarizeBy: none
 		sourceColumn: ThresholdType
 
 	column ThresholdValue
 		dataType: int64
+		lineageTag: d99f7484-2c3f-4b34-b5e5-44953d95de09
 		summarizeBy: none
 		sourceColumn: ThresholdValue
 
 	column ThresholdUnit
 		dataType: string
+		lineageTag: 22747f2f-ec08-4bd7-a4d4-bccedfa864ef
 		summarizeBy: none
 		sourceColumn: ThresholdUnit
 
@@ -24,3 +29,4 @@ table LookupRiskThreshold
 					)
 				in
 					Source
+
