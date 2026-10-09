@@ -11,6 +11,27 @@
   },
   "visual": {
     "visualType": "cardVisual",
-    "drillFilterOtherVisuals": true
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AllMeasures"
+                    }
+                  },
+                  "Property": "New Car Sales"
+                }
+              },
+              "queryRef": "AllMeasures.New Car Sales"
+            }
+          ]
+        }
+      }
+    }
   }
 }

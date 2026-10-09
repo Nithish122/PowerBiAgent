@@ -11,6 +11,53 @@
   },
   "visual": {
     "visualType": "tableEx",
-    "drillFilterOtherVisuals": true
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AllMeasures"
+                    }
+                  },
+                  "Property": "Diesel Share"
+                }
+              },
+              "queryRef": "AllMeasures.Diesel Share"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AllMeasures"
+                    }
+                  },
+                  "Property": "Electric Share"
+                }
+              },
+              "queryRef": "AllMeasures.Electric Share"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AllMeasures"
+                    }
+                  },
+                  "Property": "Average CO2"
+                }
+              },
+              "queryRef": "AllMeasures.Average CO2"
+            }
+          ]
+        }
+      }
+    }
   }
 }

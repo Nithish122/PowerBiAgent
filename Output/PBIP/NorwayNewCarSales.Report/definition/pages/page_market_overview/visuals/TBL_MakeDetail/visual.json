@@ -11,6 +11,40 @@
   },
   "visual": {
     "visualType": "tableEx",
-    "drillFilterOtherVisuals": true
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AllMeasures"
+                    }
+                  },
+                  "Property": "Top Make Sales"
+                }
+              },
+              "queryRef": "AllMeasures.Top Make Sales"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AllMeasures"
+                    }
+                  },
+                  "Property": "Make Share %"
+                }
+              },
+              "queryRef": "AllMeasures.Make Share %"
+            }
+          ]
+        }
+      }
+    }
   }
 }

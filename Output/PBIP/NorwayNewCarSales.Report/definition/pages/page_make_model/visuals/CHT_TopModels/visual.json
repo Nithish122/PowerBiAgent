@@ -11,6 +11,44 @@
   },
   "visual": {
     "visualType": "clusteredColumnChart",
-    "drillFilterOtherVisuals": true
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimModel"
+                    }
+                  },
+                  "Property": "ModelName"
+                }
+              },
+              "queryRef": "DimModel.ModelName"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AllMeasures"
+                    }
+                  },
+                  "Property": "Top Model Sales"
+                }
+              },
+              "queryRef": "AllMeasures.Top Model Sales"
+            }
+          ]
+        }
+      }
+    }
   }
 }
