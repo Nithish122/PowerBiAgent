@@ -7,11 +7,7 @@ table AllMeasures
 
 	partition AllMeasures = m
 		mode: import
-		source =
-			let
-				Source = #table(type table [Dummy = Int64.Type], {{0}})
-			in
-				Source
+		source = #table(type table [Dummy = Int64.Type], {{0}})
 
 	/// Total monthly registrations across the selected period. Uses the monthly market fact. Blank when no row exists for the current date filter. Depends on FactMonthlyMarket[Quantity].
 	measure 'New Car Sales' = SUM ( 'FactMonthlyMarket'[Quantity] )
