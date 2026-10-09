@@ -18,11 +18,6 @@ relationship 28e1c9cb-d6db-4f48-b52d-4714949539cd
 	fromColumn: DimMake.MakeKey
 	toColumn: FactModelSales.MakeKey
 
-relationship 9f83412c-3b69-4d70-bd0c-a6f80f8acaac
-	fromColumn: DimMake.MakeKey
-	toColumn: DimModel.MakeKey
-	isActive: false
-
 relationship 465e5210-318a-4d60-8709-c5d4e22773dd
 	fromColumn: DimModel.ModelKey
 	toColumn: FactModelSales.ModelKey
