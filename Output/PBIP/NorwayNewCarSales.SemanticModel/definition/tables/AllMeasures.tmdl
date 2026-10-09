@@ -9,7 +9,6 @@ table AllMeasures
 		mode: import
 		source =
 			let
-				Datafilepath = "C:\Users\User\Downloads\Norway"
 				Source = #table(type table [Dummy = Int64.Type], {{0}})
 			in
 				Source
