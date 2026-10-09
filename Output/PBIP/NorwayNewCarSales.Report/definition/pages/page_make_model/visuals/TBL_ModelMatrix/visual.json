@@ -1,0 +1,16 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "TBL_ModelMatrix",
+  "position": {
+    "x": 24,
+    "y": 406,
+    "z": 2,
+    "height": 290,
+    "width": 1232,
+    "tabOrder": 2
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "drillFilterOtherVisuals": true
+  }
+}

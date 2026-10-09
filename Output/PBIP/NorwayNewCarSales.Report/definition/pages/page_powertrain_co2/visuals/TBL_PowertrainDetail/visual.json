@@ -1,0 +1,16 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "TBL_PowertrainDetail",
+  "position": {
+    "x": 24,
+    "y": 524,
+    "z": 5,
+    "height": 172,
+    "width": 1232,
+    "tabOrder": 5
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "drillFilterOtherVisuals": true
+  }
+}

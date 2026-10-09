@@ -1,0 +1,342 @@
+model:
+  name: NorwayNewCarSales
+  culture: en-US
+  defaultStorageMode: import
+
+tables:
+  - name: DimDate
+    kind: dimension
+    description: "Calendar dimension covering the monthly reporting period for all sales facts."
+    grain: "one row per month"
+    reqs: [REQ-004, REQ-006, REQ-011, REQ-012, REQ-013]
+    source:
+      status: known
+      m: |
+        let
+            Source = Csv.Document(File.Contents("C:\\Users\\User\\Desktop\\Agent\\PowerBiAgent\\Data\\norway_new_car_sales_by_month.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+            PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+            Typed = Table.TransformColumnTypes(PromotedHeaders, {{"Year", Int64.Type}, {"Month", Int64.Type}}),
+            UniqueMonths = Table.Distinct(Table.SelectColumns(Typed, {"Year", "Month"})),
+            AddedDate = Table.AddColumn(UniqueMonths, "Date", each #date([Year], [Month], 1), type date),
+            AddedDateKey = Table.AddColumn(AddedDate, "DateKey", each Number.From(Date.ToText([Date], "yyyyMMdd")), Int64.Type),
+            AddedQuarter = Table.AddColumn(AddedDateKey, "Quarter", each Date.QuarterOfYear([Date]), Int64.Type),
+            AddedMonthNumber = Table.AddColumn(AddedQuarter, "MonthNumber", each Date.Month([Date]), Int64.Type),
+            AddedMonthName = Table.AddColumn(AddedMonthNumber, "MonthName", each Date.ToText([Date], "MMMM"), type text),
+            AddedYearMonth = Table.AddColumn(AddedMonthName, "YearMonth", each Text.From([Year]) & "-" & Text.PadStart(Text.From([MonthNumber]), 2, "0"), type text),
+            AddedYearMonthNumber = Table.AddColumn(AddedYearMonth, "YearMonthNumber", each [Year] * 100 + [MonthNumber], Int64.Type),
+            AddedWeekNumber = Table.AddColumn(AddedYearMonthNumber, "WeekNumber", each 0, Int64.Type),
+            AddedDayOfWeekName = Table.AddColumn(AddedWeekNumber, "DayOfWeekName", each "Month", type text),
+            AddedDayOfWeekNumber = Table.AddColumn(AddedDayOfWeekName, "DayOfWeekNumber", each 1, Int64.Type),
+            Final = Table.SelectColumns(AddedDayOfWeekNumber, {"Date", "DateKey", "Year", "Quarter", "MonthNumber", "MonthName", "YearMonth", "YearMonthNumber", "WeekNumber", "DayOfWeekName", "DayOfWeekNumber"})
+        in
+            Final
+    columns:
+      - { name: Date, dataType: dateTime, sourceColumn: Date, isHidden: false, summarizeBy: none }
+      - { name: DateKey, dataType: int64, sourceColumn: DateKey, isHidden: true, summarizeBy: none }
+      - { name: Year, dataType: int64, sourceColumn: Year, isHidden: false, summarizeBy: none }
+      - { name: Quarter, dataType: int64, sourceColumn: Quarter, isHidden: false, summarizeBy: none }
+      - { name: MonthNumber, dataType: int64, sourceColumn: MonthNumber, isHidden: false, summarizeBy: none }
+      - { name: MonthName, dataType: string, sourceColumn: MonthName, isHidden: false, summarizeBy: none }
+      - { name: YearMonth, dataType: string, sourceColumn: YearMonth, isHidden: false, summarizeBy: none }
+      - { name: YearMonthNumber, dataType: int64, sourceColumn: YearMonthNumber, isHidden: false, summarizeBy: none }
+      - { name: WeekNumber, dataType: int64, sourceColumn: WeekNumber, isHidden: false, summarizeBy: none }
+      - { name: DayOfWeekName, dataType: string, sourceColumn: DayOfWeekName, isHidden: false, summarizeBy: none }
+      - { name: DayOfWeekNumber, dataType: int64, sourceColumn: DayOfWeekNumber, isHidden: false, summarizeBy: none }
+
+  - name: DimMake
+    kind: dimension
+    description: "Trimmed make dimension used for top-ranking, filtering, and model-to-make navigation."
+    grain: "one row per make"
+    reqs: [REQ-003, REQ-013]
+    source:
+      status: known
+      m: |
+        let
+            Source = Csv.Document(File.Contents("C:\\Users\\User\\Desktop\\Agent\\PowerBiAgent\\Data\\norway_new_car_sales_by_make.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+            PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+            TrimmedText = Table.TransformColumns(PromotedHeaders, {{"Make", each Text.Trim(_), type text}}),
+            DistinctMakes = Table.Distinct(Table.SelectColumns(TrimmedText, {"Make"})),
+            AddedMakeKey = Table.AddIndexColumn(DistinctMakes, "MakeKey", 1, 1),
+            Final = Table.RenameColumns(AddedMakeKey, {{"Make", "MakeName"}})
+        in
+            Final
+    columns:
+      - { name: MakeKey, dataType: int64, sourceColumn: MakeKey, isHidden: true, summarizeBy: none }
+      - { name: MakeName, dataType: string, sourceColumn: MakeName, isHidden: false, summarizeBy: none }
+
+  - name: DimModel
+    kind: dimension
+    description: "Model dimension aligned to make-level context for rankings and drilldown analysis."
+    grain: "one row per model"
+    reqs: [REQ-003, REQ-013]
+    source:
+      status: known
+      m: |
+        let
+            Source = Csv.Document(File.Contents("C:\\Users\\User\\Desktop\\Agent\\PowerBiAgent\\Data\\norway_new_car_sales_by_model.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+            PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+            TrimmedText = Table.TransformColumns(PromotedHeaders, {{"Make", each Text.Trim(_), type text}, {"Model", each Text.Trim(_), type text}}),
+            DistinctModels = Table.Distinct(Table.SelectColumns(TrimmedText, {"Make", "Model"})),
+            MakeLookup = Table.Distinct(Table.SelectColumns(TrimmedText, {"Make"})),
+            AddedMakeKey = Table.AddIndexColumn(MakeLookup, "MakeKey", 1, 1),
+            RenamedMake = Table.RenameColumns(AddedMakeKey, {{"Make", "MakeName"}}),
+            JoinedToMake = Table.NestedJoin(DistinctModels, {"Make"}, RenamedMake, {"MakeName"}, "MakeLookup", JoinKind.LeftOuter),
+            ExpandedMakeKey = Table.ExpandTableColumn(JoinedToMake, "MakeLookup", {"MakeKey"}, {"MakeKey"}),
+            AddedModelKey = Table.AddIndexColumn(ExpandedMakeKey, "ModelKey", 1, 1),
+            Final = Table.ReorderColumns(Table.RenameColumns(AddedModelKey, {{"Model", "ModelName"}, {"Make", "MakeName"}}), {"ModelKey", "MakeKey", "MakeName", "ModelName"})
+        in
+            Final
+    columns:
+      - { name: ModelKey, dataType: int64, sourceColumn: ModelKey, isHidden: true, summarizeBy: none }
+      - { name: MakeKey, dataType: int64, sourceColumn: MakeKey, isHidden: true, summarizeBy: none }
+      - { name: MakeName, dataType: string, sourceColumn: MakeName, isHidden: false, summarizeBy: none }
+      - { name: ModelName, dataType: string, sourceColumn: ModelName, isHidden: false, summarizeBy: none }
+
+  - name: FactMonthlyMarket
+    kind: fact
+    description: "Monthly market totals and indicator trends for Norway, with source-defined powertrain and CO2 measures."
+    grain: "one row per Year-Month"
+    reqs: [REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-011, REQ-012, REQ-014, REQ-015]
+    source:
+      status: known
+      m: |
+        let
+            Source = Csv.Document(File.Contents("C:\\Users\\User\\Desktop\\Agent\\PowerBiAgent\\Data\\norway_new_car_sales_by_month.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+            PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+            Typed = Table.TransformColumnTypes(PromotedHeaders, {{"Year", Int64.Type}, {"Month", Int64.Type}, {"Quantity", Int64.Type}, {"Quantity_YoY", Int64.Type}, {"Import", Int64.Type}, {"Import_YoY", Int64.Type}, {"Used", Int64.Type}, {"Used_YoY", Int64.Type}, {"Avg_CO2", type number}, {"Bensin_Co2", type number}, {"Diesel_Co2", type number}, {"Quantity_Diesel", Int64.Type}, {"Diesel_Share", type number}, {"Diesel_Share_LY", type number}, {"Quantity_Hybrid", Int64.Type}, {"Quantity_Electric", Int64.Type}, {"Import_Electric", Int64.Type}}),
+            ReplacedNA = Table.ReplaceValue(Typed, "NA", null, Replacer.ReplaceValue, {"Quantity_YoY", "Import", "Import_YoY", "Used", "Used_YoY", "Avg_CO2", "Bensin_Co2", "Diesel_Co2", "Quantity_Diesel", "Diesel_Share", "Diesel_Share_LY", "Quantity_Hybrid", "Quantity_Electric", "Import_Electric"}),
+            AddedDateKey = Table.AddColumn(ReplacedNA, "DateKey", each Number.From(Date.ToText(#date([Year], [Month], 1), "yyyyMMdd")), Int64.Type),
+            Final = Table.ReorderColumns(AddedDateKey, {"DateKey", "Year", "Month", "Quantity", "Quantity_YoY", "Import", "Import_YoY", "Used", "Used_YoY", "Avg_CO2", "Bensin_Co2", "Diesel_Co2", "Quantity_Diesel", "Diesel_Share", "Diesel_Share_LY", "Quantity_Hybrid", "Quantity_Electric", "Import_Electric"})
+        in
+            Final
+    columns:
+      - { name: DateKey, dataType: int64, sourceColumn: DateKey, isHidden: true, summarizeBy: none }
+      - { name: Year, dataType: int64, sourceColumn: Year, isHidden: false, summarizeBy: none }
+      - { name: Month, dataType: int64, sourceColumn: Month, isHidden: false, summarizeBy: none }
+      - { name: Quantity, dataType: int64, sourceColumn: Quantity, isHidden: false, summarizeBy: sum }
+      - { name: Quantity_YoY, dataType: int64, sourceColumn: Quantity_YoY, isHidden: false, summarizeBy: sum }
+      - { name: Import, dataType: int64, sourceColumn: Import, isHidden: false, summarizeBy: sum }
+      - { name: Import_YoY, dataType: int64, sourceColumn: Import_YoY, isHidden: false, summarizeBy: sum }
+      - { name: Used, dataType: int64, sourceColumn: Used, isHidden: false, summarizeBy: sum }
+      - { name: Used_YoY, dataType: int64, sourceColumn: Used_YoY, isHidden: false, summarizeBy: sum }
+      - { name: Avg_CO2, dataType: double, sourceColumn: Avg_CO2, isHidden: false, summarizeBy: average }
+      - { name: Bensin_Co2, dataType: double, sourceColumn: Bensin_Co2, isHidden: false, summarizeBy: average }
+      - { name: Diesel_Co2, dataType: double, sourceColumn: Diesel_Co2, isHidden: false, summarizeBy: average }
+      - { name: Quantity_Diesel, dataType: int64, sourceColumn: Quantity_Diesel, isHidden: false, summarizeBy: sum }
+      - { name: Diesel_Share, dataType: double, sourceColumn: Diesel_Share, isHidden: false, summarizeBy: average }
+      - { name: Diesel_Share_LY, dataType: double, sourceColumn: Diesel_Share_LY, isHidden: false, summarizeBy: average }
+      - { name: Quantity_Hybrid, dataType: int64, sourceColumn: Quantity_Hybrid, isHidden: false, summarizeBy: sum }
+      - { name: Quantity_Electric, dataType: int64, sourceColumn: Quantity_Electric, isHidden: false, summarizeBy: sum }
+      - { name: Import_Electric, dataType: int64, sourceColumn: Import_Electric, isHidden: false, summarizeBy: sum }
+
+  - name: FactMakeSales
+    kind: fact
+    description: "Monthly make-level sales totals and source percentages used for leading-make analysis."
+    grain: "one row per Year-Month-Make"
+    reqs: [REQ-003, REQ-004, REQ-005, REQ-012, REQ-013, REQ-014, REQ-015]
+    source:
+      status: known
+      m: |
+        let
+            Source = Csv.Document(File.Contents("C:\\Users\\User\\Desktop\\Agent\\PowerBiAgent\\Data\\norway_new_car_sales_by_make.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+            PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+            Typed = Table.TransformColumnTypes(PromotedHeaders, {{"Year", Int64.Type}, {"Month", Int64.Type}, {"Make", type text}, {"Quantity", Int64.Type}, {"Pct", type number}}),
+            Trimmed = Table.TransformColumns(Typed, {{"Make", each Text.Trim(_), type text}}),
+            AddDateKey = Table.AddColumn(Trimmed, "DateKey", each Number.From(Date.ToText(#date([Year], [Month], 1), "yyyyMMdd")), Int64.Type),
+            MakeList = List.Distinct(Trimmed[Make]),
+            AddMakeKey = Table.AddColumn(AddDateKey, "MakeKey", each List.PositionOf(MakeList, [Make]) + 1, Int64.Type),
+            Final = Table.ReorderColumns(AddMakeKey, {"DateKey", "Year", "Month", "MakeKey", "Make", "Quantity", "Pct"})
+        in
+            Final
+    columns:
+      - { name: DateKey, dataType: int64, sourceColumn: DateKey, isHidden: true, summarizeBy: none }
+      - { name: Year, dataType: int64, sourceColumn: Year, isHidden: false, summarizeBy: none }
+      - { name: Month, dataType: int64, sourceColumn: Month, isHidden: false, summarizeBy: none }
+      - { name: MakeKey, dataType: int64, sourceColumn: MakeKey, isHidden: true, summarizeBy: none }
+      - { name: MakeName, dataType: string, sourceColumn: Make, isHidden: false, summarizeBy: none }
+      - { name: Quantity, dataType: int64, sourceColumn: Quantity, isHidden: false, summarizeBy: sum }
+      - { name: Pct, dataType: double, sourceColumn: Pct, isHidden: false, summarizeBy: average }
+
+  - name: FactModelSales
+    kind: fact
+    description: "Monthly model-level sales totals and source percentages used for model rankings and make-to-model drilldowns."
+    grain: "one row per Year-Month-Make-Model"
+    reqs: [REQ-003, REQ-004, REQ-005, REQ-012, REQ-013, REQ-014, REQ-015]
+    source:
+      status: known
+      m: |
+        let
+            Source = Csv.Document(File.Contents("C:\\Users\\User\\Desktop\\Agent\\PowerBiAgent\\Data\\norway_new_car_sales_by_model.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+            PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+            Typed = Table.TransformColumnTypes(PromotedHeaders, {{"Year", Int64.Type}, {"Month", Int64.Type}, {"Make", type text}, {"Model", type text}, {"Quantity", Int64.Type}, {"Pct", type number}}),
+            Trimmed = Table.TransformColumns(Typed, {{"Make", each Text.Trim(_), type text}, {"Model", each Text.Trim(_), type text}}),
+            AddDateKey = Table.AddColumn(Trimmed, "DateKey", each Number.From(Date.ToText(#date([Year], [Month], 1), "yyyyMMdd")), Int64.Type),
+            MakeList = List.Distinct(Trimmed[Make]),
+            ModelList = List.Distinct(Trimmed[Model]),
+            AddMakeKey = Table.AddColumn(AddDateKey, "MakeKey", each List.PositionOf(MakeList, [Make]) + 1, Int64.Type),
+            AddModelKey = Table.AddColumn(AddMakeKey, "ModelKey", each List.PositionOf(ModelList, [Model]) + 1, Int64.Type),
+            Final = Table.ReorderColumns(AddModelKey, {"DateKey", "Year", "Month", "MakeKey", "ModelKey", "Make", "Model", "Quantity", "Pct"})
+        in
+            Final
+    columns:
+      - { name: DateKey, dataType: int64, sourceColumn: DateKey, isHidden: true, summarizeBy: none }
+      - { name: Year, dataType: int64, sourceColumn: Year, isHidden: false, summarizeBy: none }
+      - { name: Month, dataType: int64, sourceColumn: Month, isHidden: false, summarizeBy: none }
+      - { name: MakeKey, dataType: int64, sourceColumn: MakeKey, isHidden: true, summarizeBy: none }
+      - { name: ModelKey, dataType: int64, sourceColumn: ModelKey, isHidden: true, summarizeBy: none }
+      - { name: MakeName, dataType: string, sourceColumn: Make, isHidden: false, summarizeBy: none }
+      - { name: ModelName, dataType: string, sourceColumn: Model, isHidden: false, summarizeBy: none }
+      - { name: Quantity, dataType: int64, sourceColumn: Quantity, isHidden: false, summarizeBy: sum }
+      - { name: Pct, dataType: double, sourceColumn: Pct, isHidden: false, summarizeBy: average }
+
+  - name: Measures
+    kind: measures
+    description: "Hidden measure table holding KPI and presentation measures for the reporting model."
+    grain: "one row per measure metadata row"
+    reqs: [REQ-001, REQ-002, REQ-003]
+    source:
+      status: stub
+      m: |
+        let
+            Source = #table(type table [Dummy = Int64.Type], {{0}})
+        in
+            Source
+    columns:
+      - { name: Dummy, dataType: int64, sourceColumn: Dummy, isHidden: true, summarizeBy: none }
+
+measures:
+  - name: New Car Sales
+    homeTable: Measures
+    expression: SUM ( 'FactMonthlyMarket'[Quantity] )
+    formatString: "#,0"
+    displayFolder: 'Measures\Base'
+    description: "Total monthly registrations across the selected period. Uses the monthly market fact. Blank when no row exists for the current date filter. Depends on FactMonthlyMarket[Quantity]."
+    reqs: [KPI-001]
+
+  - name: New Car Sales Previous Year
+    homeTable: Measures
+    expression: CALCULATE ( [New Car Sales], SAMEPERIODLASTYEAR ( 'DimDate'[Date] ) )
+    formatString: "#,0"
+    displayFolder: 'Measures\Time Intelligence'
+    description: "Prior-year total for the same month or month set. Uses calendar month logic and depends on DimDate[Date]. Blank when no comparable period exists."
+    reqs: [KPI-002]
+
+  - name: New Car Sales YoY %
+    homeTable: Measures
+    expression: |
+      VAR CurrentValue = [New Car Sales]
+      VAR PreviousValue = [New Car Sales Previous Year]
+      RETURN
+          DIVIDE ( CurrentValue - PreviousValue, PreviousValue )
+    formatString: "0.0%"
+    displayFolder: 'Measures\KPI'
+    description: "Percentage change versus the same month in the prior year. Uses the monthly market fact and a prior-year comparison. Blank when the prior-year value is zero or missing."
+    reqs: [KPI-002]
+
+  - name: Diesel Share
+    homeTable: Measures
+    expression: AVERAGE ( 'FactMonthlyMarket'[Diesel_Share] )
+    formatString: "0.0%"
+    displayFolder: 'Measures\Base'
+    description: "Monthly diesel share from the source file. Uses the source percentage for the active month. Blank when the month lacks a diesel-share value."
+    reqs: [KPI-003]
+
+  - name: Electric Share
+    homeTable: Measures
+    expression: DIVIDE ( SUM ( 'FactMonthlyMarket'[Quantity_Electric] ), SUM ( 'FactMonthlyMarket'[Quantity] ) )
+    formatString: "0.0%"
+    displayFolder: 'Measures\Base'
+    description: "Electric sales as a share of total monthly sales. Uses the source monthly volume and blanks when the denominator is zero or missing."
+    reqs: [KPI-004]
+
+  - name: Average CO2
+    homeTable: Measures
+    expression: AVERAGE ( 'FactMonthlyMarket'[Avg_CO2] )
+    formatString: "#,0.0"
+    displayFolder: 'Measures\Base'
+    description: "Average reported CO2 across the selected month. Uses the source average CO2 value and does not infer a weighted multi-month rollup."
+    reqs: [KPI-005]
+
+  - name: Top Make Sales
+    homeTable: Measures
+    expression: SUM ( 'FactMakeSales'[Quantity] )
+    formatString: "#,0"
+    displayFolder: 'Measures\Base'
+    description: "Make-level quantity across the active filter context. Uses the monthly make sales fact. Blank when the selected make has no recorded quantity."
+    reqs: [KPI-006]
+
+  - name: Make Share %
+    homeTable: Measures
+    expression: AVERAGE ( 'FactMakeSales'[Pct] )
+    formatString: "0.0%"
+    displayFolder: 'Measures\Base'
+    description: "Make share from the source percentage for the selected context. Uses the original source share and stays at the recorded Year-Month-Make grain."
+    reqs: [KPI-006]
+
+  - name: Top Model Sales
+    homeTable: Measures
+    expression: SUM ( 'FactModelSales'[Quantity] )
+    formatString: "#,0"
+    displayFolder: 'Measures\Base'
+    description: "Model-level quantity across the active filter context. Uses the monthly model fact and stays at the recorded Year-Month-Make-Model grain."
+    reqs: [KPI-006]
+
+  - name: Model Share %
+    homeTable: Measures
+    expression: AVERAGE ( 'FactModelSales'[Pct] )
+    formatString: "0.0%"
+    displayFolder: 'Measures\Base'
+    description: "Model share from the source percentage for the selected context. Uses the source Year-Month-Make-Model grain without implied cross-period aggregation."
+    reqs: [KPI-006]
+
+relationships:
+  - from: "DimDate[DateKey]"
+    to: "FactMonthlyMarket[DateKey]"
+    cardinality: manyToOne
+    crossFilter: single
+    isActive: true
+    role: Date
+
+  - from: "DimDate[DateKey]"
+    to: "FactMakeSales[DateKey]"
+    cardinality: manyToOne
+    crossFilter: single
+    isActive: true
+    role: Date
+
+  - from: "DimDate[DateKey]"
+    to: "FactModelSales[DateKey]"
+    cardinality: manyToOne
+    crossFilter: single
+    isActive: true
+    role: Date
+
+  - from: "DimMake[MakeKey]"
+    to: "FactMakeSales[MakeKey]"
+    cardinality: manyToOne
+    crossFilter: single
+    isActive: true
+    role: Make
+
+  - from: "DimMake[MakeKey]"
+    to: "FactModelSales[MakeKey]"
+    cardinality: manyToOne
+    crossFilter: single
+    isActive: true
+    role: Make
+
+  - from: "DimMake[MakeKey]"
+    to: "DimModel[MakeKey]"
+    cardinality: oneToMany
+    crossFilter: single
+    isActive: true
+    role: Make
+
+  - from: "DimModel[ModelKey]"
+    to: "FactModelSales[ModelKey]"
+    cardinality: manyToOne
+    crossFilter: single
+    isActive: true
+    role: Model
+
+roles: []

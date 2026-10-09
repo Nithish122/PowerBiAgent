@@ -1,0 +1,54 @@
+/// Monthly make-level sales totals and source percentages used for leading-make analysis.
+table FactMakeSales
+	column DateKey
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: DateKey
+
+	column Year
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: Year
+
+	column Month
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: Month
+
+	column MakeKey
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: MakeKey
+
+	column MakeName
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Make
+
+	column Quantity
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: Quantity
+
+	column Pct
+		dataType: double
+		summarizeBy: average
+		sourceColumn: Pct
+
+	partition FactMakeSales = m
+		mode: import
+		source =
+			let
+				Datafilepath = "C:\Users\User\Downloads\Norway"
+				Source = Csv.Document(File.Contents(Datafilepath & "\norway_new_car_sales_by_make.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+			    Typed = Table.TransformColumnTypes(PromotedHeaders, {{"Year", Int64.Type}, {"Month", Int64.Type}, {"Make", type text}, {"Quantity", Int64.Type}, {"Pct", type number}}),
+			    Trimmed = Table.TransformColumns(Typed, {{"Make", each Text.Trim(_), type text}}),
+			    AddDateKey = Table.AddColumn(Trimmed, "DateKey", each Number.From(Date.ToText(#date([Year], [Month], 1), "yyyyMMdd")), Int64.Type),
+			    MakeList = List.Distinct(Trimmed[Make]),
+			    AddMakeKey = Table.AddColumn(AddDateKey, "MakeKey", each List.PositionOf(MakeList, [Make]) + 1, Int64.Type),
+			    Final = Table.ReorderColumns(AddMakeKey, {"DateKey", "Year", "Month", "MakeKey", "Make", "Quantity", "Pct"})
+			in
+			    Final

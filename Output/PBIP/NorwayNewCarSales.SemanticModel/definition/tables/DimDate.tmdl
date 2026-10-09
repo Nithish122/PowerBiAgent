@@ -1,0 +1,90 @@
+/// Calendar dimension covering the monthly reporting period for all sales facts.
+table DimDate
+	dataCategory: Time
+	column Date
+		dataType: dateTime
+		summarizeBy: none
+		sourceColumn: Date
+		formatString: dd-mmm-yyyy
+		isKey
+
+	column DateKey
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: DateKey
+
+	column Year
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: Year
+
+	column Quarter
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: Quarter
+
+	column MonthNumber
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: MonthNumber
+
+	column MonthName
+		dataType: string
+		summarizeBy: none
+		sourceColumn: MonthName
+		sortByColumn: MonthNumber
+
+	column YearMonth
+		dataType: string
+		summarizeBy: none
+		sourceColumn: YearMonth
+
+	column YearMonthNumber
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: YearMonthNumber
+
+	column WeekNumber
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: WeekNumber
+
+	column DayOfWeekName
+		dataType: string
+		summarizeBy: none
+		sourceColumn: DayOfWeekName
+
+	column DayOfWeekNumber
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: DayOfWeekNumber
+
+	hierarchy 'Calendar Hierarchy'
+		level Year
+			column: Year
+		level Month
+			column: MonthName
+
+	partition DimDate = m
+		mode: import
+		source =
+			let
+				Datafilepath = "C:\Users\User\Downloads\Norway"
+				Source = Csv.Document(File.Contents(Datafilepath & "\norway_new_car_sales_by_month.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+			    Typed = Table.TransformColumnTypes(PromotedHeaders, {{"Year", Int64.Type}, {"Month", Int64.Type}}),
+			    UniqueMonths = Table.Distinct(Table.SelectColumns(Typed, {"Year", "Month"})),
+			    AddedDate = Table.AddColumn(UniqueMonths, "Date", each #date([Year], [Month], 1), type date),
+			    AddedDateKey = Table.AddColumn(AddedDate, "DateKey", each Number.From(Date.ToText([Date], "yyyyMMdd")), Int64.Type),
+			    AddedQuarter = Table.AddColumn(AddedDateKey, "Quarter", each Date.QuarterOfYear([Date]), Int64.Type),
+			    AddedMonthNumber = Table.AddColumn(AddedQuarter, "MonthNumber", each Date.Month([Date]), Int64.Type),
+			    AddedMonthName = Table.AddColumn(AddedMonthNumber, "MonthName", each Date.ToText([Date], "MMMM"), type text),
+			    AddedYearMonth = Table.AddColumn(AddedMonthName, "YearMonth", each Text.From([Year]) & "-" & Text.PadStart(Text.From([MonthNumber]), 2, "0"), type text),
+			    AddedYearMonthNumber = Table.AddColumn(AddedYearMonth, "YearMonthNumber", each [Year] * 100 + [MonthNumber], Int64.Type),
+			    AddedWeekNumber = Table.AddColumn(AddedYearMonthNumber, "WeekNumber", each 0, Int64.Type),
+			    AddedDayOfWeekName = Table.AddColumn(AddedWeekNumber, "DayOfWeekName", each "Month", type text),
+			    AddedDayOfWeekNumber = Table.AddColumn(AddedDayOfWeekName, "DayOfWeekNumber", each 1, Int64.Type),
+			    Final = Table.SelectColumns(AddedDayOfWeekNumber, {"Date", "DateKey", "Year", "Quarter", "MonthNumber", "MonthName", "YearMonth", "YearMonthNumber", "WeekNumber", "DayOfWeekName", "DayOfWeekNumber"})
+			in
+			    Final

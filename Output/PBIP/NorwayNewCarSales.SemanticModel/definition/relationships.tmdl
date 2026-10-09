@@ -1,0 +1,27 @@
+relationship 6df47c1a-2011-4bc6-82bc-e428ca70fdee
+	fromColumn: DimDate.DateKey
+	toColumn: FactMonthlyMarket.DateKey
+
+relationship b32e5cf9-74ff-43af-8d3c-b5b585c495e6
+	fromColumn: DimDate.DateKey
+	toColumn: FactMakeSales.DateKey
+
+relationship 71a95314-51c2-49db-89e8-d722e6d43225
+	fromColumn: DimDate.DateKey
+	toColumn: FactModelSales.DateKey
+
+relationship 71e1b61c-2f53-4b2c-8835-fb5bac4885c3
+	fromColumn: DimMake.MakeKey
+	toColumn: FactMakeSales.MakeKey
+
+relationship 28e1c9cb-d6db-4f48-b52d-4714949539cd
+	fromColumn: DimMake.MakeKey
+	toColumn: FactModelSales.MakeKey
+
+relationship 9f83412c-3b69-4d70-bd0c-a6f80f8acaac
+	fromColumn: DimMake.MakeKey
+	toColumn: DimModel.MakeKey
+
+relationship 465e5210-318a-4d60-8709-c5d4e22773dd
+	fromColumn: DimModel.ModelKey
+	toColumn: FactModelSales.ModelKey

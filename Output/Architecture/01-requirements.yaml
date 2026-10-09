@@ -1,0 +1,361 @@
+document:
+  title: "Norway New-Car Sales"
+  version: "1.0"
+  owner: "Business owner to be confirmed"
+  date: "2026-10-09"
+
+scope:
+  in:
+    - "Monthly new-car sales/registration totals and source-provided monthly indicators"
+    - "Make- and model-level sales quantities and source-provided percentages"
+    - "Calendar-month and calendar-year analysis across the dates present in the CSVs"
+    - "Three report pages with consistent date filtering and relevant make/model filters"
+  out:
+    - "Vehicle manufacturing/production volume, plant output, capacity, inventory, revenue, price, profitability, customer demographics, dealer performance"
+    - "Geography below Norway, forecasts, targets, and real-time reporting"
+    - "Claims about causes of sales or emissions changes"
+    - "Row-level security or user-to-region access rules without approved mapping data"
+
+glossary:
+  - term: "New-car sales"
+    definition: "Sales/registrations counted in the source files for Norway during the reported period; not manufacturing output."
+    ref: "BRD §2, §5"
+  - term: "Quantity"
+    definition: "Source-reported monthly unit count for total new-car sales/registrations, treated as the market total when used in KPI-001 and KPI-002."
+    ref: "BRD §5, §6"
+  - term: "Pct"
+    definition: "Source-recorded percentage within the corresponding Year-Month category, used as a raw share measure and not a sum across time."
+    ref: "BRD §5, §6, §10"
+  - term: "NA"
+    definition: "A missing source value that must remain blank in reporting, not zero."
+    ref: "BRD §5, §10"
+
+personas:
+  - id: PER-01
+    name: "Executive / market leader"
+    needs: "Assess overall market size, direction, and notable shifts"
+    device: "desktop"
+  - id: PER-02
+    name: "Market analyst"
+    needs: "Compare monthly sales and market indicators over time"
+    device: "desktop"
+  - id: PER-03
+    name: "Brand / product analyst"
+    needs: "Identify leading makes and models and changes in ranking"
+    device: "desktop"
+
+requirements:
+  - id: REQ-001
+    type: goal
+    text: "Provide an executive overview of new-car sales volume and its change over time."
+    ref: "BRD §2.2, §6"
+  - id: REQ-002
+    type: goal
+    text: "Show how available diesel, hybrid, electric, import, used-car, and CO2 indicators change over time, with missing-history caveats."
+    ref: "BRD §2.2, §6, §7.2"
+  - id: REQ-003
+    type: goal
+    text: "Identify leading makes and models and show their relative contribution to recorded new-car sales."
+    ref: "BRD §2.2, §6, §7.3"
+  - id: REQ-004
+    type: goal
+    text: "Let users filter and compare the available reporting period consistently across pages."
+    ref: "BRD §2.2, §4, §7, §8"
+  - id: REQ-005
+    type: goal
+    text: "Make data limitations and ambiguous source definitions visible; do not imply precision or coverage that the files do not support."
+    ref: "BRD §2.2, §4, §5, §7, §8"
+  - id: REQ-006
+    type: requirement
+    text: "Use a consistent calendar date filter across pages; display the selected date range and month/year clearly."
+    ref: "BRD §8"
+  - id: REQ-007
+    type: requirement
+    text: "Cross-filter related visuals by default while preventing KPI cards from filtering one another and avoiding misleading model comparisons."
+    ref: "BRD §8"
+  - id: REQ-008
+    type: requirement
+    text: "Use descriptive titles, units, readable axis labels, chronological month sorting, and accessible contrast; show missing data as blank/gap where relevant."
+    ref: "BRD §8"
+  - id: REQ-009
+    type: requirement
+    text: "Keep the report to exactly three pages, with no mobile layout requirement."
+    ref: "BRD §8"
+  - id: REQ-010
+    type: requirement
+    text: "Provide a page-level reset-to-default action if supported by the implementation, while preserving the intended default date range."
+    ref: "BRD §8"
+  - id: REQ-011
+    type: requirement
+    text: "Create a calendar date dimension covering all dates in the source period, with calendar year, month number/name, and sortable Year-Month."
+    ref: "BRD §9"
+  - id: REQ-012
+    type: requirement
+    text: "Preserve source grains separately: monthly market fact, make fact, and model fact; do not sum them as equivalent measures."
+    ref: "BRD §9"
+  - id: REQ-013
+    type: requirement
+    text: "Relate facts through shared Date and Make dimensions; relate Model to Make only if uniqueness and filtering behavior are validated."
+    ref: "BRD §9"
+  - id: REQ-014
+    type: requirement
+    text: "Convert Year, Month, quantities, percentages, and CO2 fields to appropriate numeric/date types; convert NA to null and trim Make/Model text consistently."
+    ref: "BRD §9"
+  - id: REQ-015
+    type: requirement
+    text: "Validate date-key uniqueness, fact-grain uniqueness, nonnegative quantities, numeric conversion, and source-to-model row counts; report reconciliation exceptions instead of silently forcing matches."
+    ref: "BRD §9"
+  - id: REQ-016
+    type: requirement
+    text: "Use import mode unless a later requirement establishes another refresh/latency need; confirm refresh cadence and ownership."
+    ref: "BRD §9"
+  - id: REQ-017
+    type: requirement
+    text: "Do not implement row-level security or security claims without approved user-access requirements and mapping data."
+    ref: "BRD §9"
+
+kpis:
+  - id: KPI-001
+    name: "New-car sales"
+    definition: "Sum of monthly Quantity from SRC-01; display as a vehicle count."
+    numerator: "Quantity"
+    denominator: null
+    grain: "Year-Month"
+    timeBasis: "calendar month"
+    target: null
+    format: "#,0"
+    reqs: [REQ-001]
+  - id: KPI-002
+    name: "New-car sales change vs prior year"
+    definition: "Current Quantity minus the same month(s) one year earlier; display as count and percentage using change divided by prior-year quantity when available."
+    numerator: "Quantity - PriorYearQuantity"
+    denominator: "PriorYearQuantity"
+    grain: "Year-Month"
+    timeBasis: "calendar month"
+    target: null
+    format: "#,0;(#,0)"
+    reqs: [REQ-001]
+  - id: KPI-003
+    name: "Diesel share"
+    definition: "Use source Diesel_Share for the selected month and display its unit as a percentage without summing across months."
+    numerator: "Diesel_Share"
+    denominator: null
+    grain: "Year-Month"
+    timeBasis: "calendar month"
+    target: null
+    format: "0.0%"
+    reqs: [REQ-002]
+  - id: KPI-004
+    name: "Electric sales share"
+    definition: "Quantity_Electric divided by Quantity for a month with a valid electric count and positive sales total; otherwise blank."
+    numerator: "Quantity_Electric"
+    denominator: "Quantity"
+    grain: "Year-Month"
+    timeBasis: "calendar month"
+    target: null
+    format: "0.0%"
+    reqs: [REQ-002]
+  - id: KPI-005
+    name: "Average reported CO2"
+    definition: "Use Avg_CO2 for the selected month; do not average monthly averages across a multi-month period without a confirmed weighting rule."
+    numerator: "Avg_CO2"
+    denominator: null
+    grain: "Year-Month"
+    timeBasis: "calendar month"
+    target: null
+    format: "0.0"
+    reqs: [REQ-002]
+  - id: KPI-006
+    name: "Make/model sales and share"
+    definition: "Sum Quantity in the selected context and show source Pct at the recorded Year-Month category grain without summing Pct across time."
+    numerator: "Quantity"
+    denominator: "TotalQuantityForContext"
+    grain: "Year-Month-Make or Year-Month-Make-Model"
+    timeBasis: "calendar month"
+    target: null
+    format: "#,0"
+    reqs: [REQ-003]
+
+facts:
+  - name: FactMonthlyMarket
+    grain: "one row per Year-Month"
+    dates: [DateKey]
+    measures: [Quantity, Quantity_YoY, Import, Import_YoY, Used, Used_YoY, Avg_CO2, Bensin_Co2, Diesel_Co2, Quantity_Diesel, Diesel_Share, Diesel_Share_LY, Quantity_Hybrid, Quantity_Electric, Import_Electric]
+    source: SRC-01
+    reqs: [REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-011, REQ-012, REQ-014, REQ-015]
+  - name: FactMakeSales
+    grain: "one row per Year-Month-Make"
+    dates: [DateKey]
+    measures: [Quantity, Pct]
+    source: SRC-02
+    reqs: [REQ-003, REQ-004, REQ-005, REQ-012, REQ-013, REQ-014, REQ-015]
+  - name: FactModelSales
+    grain: "one row per Year-Month-Make-Model"
+    dates: [DateKey]
+    measures: [Quantity, Pct]
+    source: SRC-03
+    reqs: [REQ-003, REQ-004, REQ-005, REQ-012, REQ-013, REQ-014, REQ-015]
+
+dimensions:
+  - name: DimDate
+    key: DateKey
+    attributes: [Year, MonthNumber, MonthName, YearMonth, YearMonthSort]
+    hierarchies: [CalendarYear > Month]
+    reqs: [REQ-004, REQ-006, REQ-011, REQ-012, REQ-013]
+  - name: DimMake
+    key: MakeKey
+    attributes: [MakeName]
+    hierarchies: []
+    reqs: [REQ-003, REQ-013]
+  - name: DimModel
+    key: ModelKey
+    attributes: [ModelName, MakeName]
+    hierarchies: [Make > Model]
+    reqs: [REQ-003, REQ-013]
+
+security:
+  - role: "No user-based security"
+    filterOn: none
+    rule: "No row-level security or access-control mapping was supplied; do not implement RLS without explicit approved data."
+    reqs: [REQ-017]
+
+pages:
+  - name: "Market Overview"
+    type: executive
+    persona: PER-01
+    question: "How large is the new-car market, how is it changing, and which makes contribute most?"
+    visuals: ["KPI cards", "monthly sales trend", "top 10 makes bar chart", "detail table"]
+    reqs: [REQ-001, REQ-003, REQ-004, REQ-005]
+  - name: "Powertrain and CO2 Trends"
+    type: analysis
+    persona: PER-02
+    question: "How have reported diesel, hybrid, electric, and CO2 indicators changed over time?"
+    visuals: ["diesel/electric share trend", "CO2 trend", "monthly powertrain quantities", "detail table"]
+    reqs: [REQ-002, REQ-004, REQ-005]
+  - name: "Make and Model Performance"
+    type: detail
+    persona: PER-03
+    question: "Which makes and models lead sales, and how do their volumes and ranks vary over the selected period?"
+    visuals: ["top 10 makes", "top 10 models", "selected make trend", "make-model matrix"]
+    reqs: [REQ-003, REQ-004, REQ-005]
+
+sources:
+  - id: SRC-01
+    system: "CSV source files in Data/"
+    object: "norway_new_car_sales_by_month.csv"
+    refresh: "to be confirmed"
+    status: known
+  - id: SRC-02
+    system: "CSV source files in Data/"
+    object: "norway_new_car_sales_by_make.csv"
+    refresh: "to be confirmed"
+    status: known
+  - id: SRC-03
+    system: "CSV source files in Data/"
+    object: "norway_new_car_sales_by_model.csv"
+    refresh: "to be confirmed"
+    status: known
+
+gaps:
+  - id: GAP-001
+    reqs: [KPI-001, KPI-002, ASM-001, ASM-002]
+    issue: "Confirm whether Quantity represents sales, first registrations, or another event and whether Norway is the correct reporting geography."
+    severity: major
+    blocking: false
+    question: "What is the exact business meaning of Quantity and the reporting geography?"
+  - id: GAP-002
+    reqs: [KPI-002]
+    issue: "Quantity_YoY, Import_YoY, and Used_YoY are not defined in business terms; comparison period and treatment of missing prior-year values are not confirmed."
+    severity: major
+    blocking: false
+    question: "Are YoY fields absolute changes or percentages, and how should absent prior-year values be treated?"
+  - id: GAP-003
+    reqs: [KPI-003, KPI-004]
+    issue: "Import, Used, and Import_Electric are not clearly defined; whether they overlap with Quantity is unresolved."
+    severity: major
+    blocking: false
+    question: "What exactly do these metrics measure and do they overlap with sales totals?"
+  - id: GAP-004
+    reqs: [KPI-003]
+    issue: "Diesel_Share and Diesel_Share_LY may be percentages or percentage points; denominator and unit are not confirmed."
+    severity: major
+    blocking: false
+    question: "Are Diesel_Share values already percentages or fractions, and what is the denominator?"
+  - id: GAP-005
+    reqs: [REQ-002, KPI-003, KPI-004]
+    issue: "Powertrain definitions and completeness dates are not confirmed; diesel, hybrid, and electric categories may not be mutually exclusive."
+    severity: major
+    blocking: false
+    question: "Which powertrain categories are valid and are they mutually exclusive?"
+  - id: GAP-006
+    reqs: [KPI-005]
+    issue: "Avg_CO2, Bensin_Co2, and Diesel_Co2 units, test standard, population, and weighting method are not confirmed."
+    severity: major
+    blocking: false
+    question: "What are the units and aggregation rules for the reported CO2 values?"
+  - id: GAP-007
+    reqs: [KPI-006]
+    issue: "The source Pct values are rounded and sum to 99.5%-100.4% rather than exactly 100%; the business interpretation is not yet confirmed."
+    severity: major
+    blocking: false
+    question: "Is Pct a within-month share, and what tolerance is acceptable for rounding or omitted categories?"
+  - id: GAP-008
+    reqs: [REQ-015]
+    issue: "Reconciliation tolerance between monthly, make, and model quantity totals is not defined, and omitted categories may exist."
+    severity: major
+    blocking: false
+    question: "What level of variance is acceptable when reconciling monthly versus make/model totals?"
+  - id: GAP-009
+    reqs: [REQ-001, REQ-002, REQ-003, REQ-010, REQ-016]
+    issue: "Targets, thresholds, default date range, refresh cadence, business owner, and data owner are not yet supplied."
+    severity: minor
+    blocking: false
+    question: "What KPI targets, default period, and refresh process should be used if status indicators or scheduled refresh are required?"
+  - id: GAP-010
+    reqs: [REQ-008, REQ-009]
+    issue: "The BRD does not confirm Norwegian-language labels, theme, accessibility standard, or mobile layout requirements."
+    severity: minor
+    blocking: false
+    question: "Are any language, styling, accessibility, or mobile requirements required beyond the default report specification?"
+
+assumptions:
+  - id: ASM-001
+    gap: GAP-001
+    decision: "Use the Norway file naming convention as the reporting geography until the owner confirms otherwise."
+    impact: "The model treats the source as Norway without a dedicated country dimension."
+    status: proposed
+  - id: ASM-002
+    gap: GAP-001
+    decision: "Interpret Quantity as the count of new-car sales/registrations in the source data, unless the business owner clarifies a different definition."
+    impact: "All market-size KPIs use the source Quantity metric as the authoritative sales count."
+    status: proposed
+  - id: ASM-003
+    gap: GAP-001
+    decision: "Use calendar months numbered 1-12 with no fiscal calendar unless one is explicitly supplied."
+    impact: "Date logic and sorting assume a standard Gregorian calendar."
+    status: proposed
+  - id: ASM-004
+    gap: GAP-007
+    decision: "Treat Pct as a source percentage within the corresponding Year-Month category, preserving it as a raw share and not summing across months."
+    impact: "Make/model rank charts and share visuals use the source percentage without synthetic balancing."
+    status: proposed
+  - id: ASM-005
+    gap: GAP-003
+    decision: "Treat NA as missing-not-zero for all indicator fields and retain blanks in visuals and DAX."
+    impact: "The report will not imply that unavailable values are zero."
+    status: proposed
+  - id: ASM-006
+    gap: GAP-009
+    decision: "Report only the available period, January 2007 through January 2017, without extrapolating to a complete 2017 year."
+    impact: "The model and report will clearly show partial-year data and avoid implying full coverage for 2017."
+    status: proposed
+  - id: ASM-007
+    gap: GAP-009
+    decision: "Use the full available date range as the default selection until the business owner supplies a different default."
+    impact: "Default slicer state is the full source period and all page-level context is aligned to that default."
+    status: proposed
+  - id: ASM-008
+    gap: GAP-009
+    decision: "Assume the CSVs are static inputs until a refresh process and data owner are provided."
+    impact: "The design uses import mode and does not define scheduled refresh or data stewardship procedures."
+    status: proposed

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "CHT_TopMakes",
+  "position": {
+    "x": 856,
+    "y": 258,
+    "z": 3,
+    "height": 250,
+    "width": 400,
+    "tabOrder": 3
+  },
+  "visual": {
+    "visualType": "clusteredColumnChart",
+    "drillFilterOtherVisuals": true
+  }
+}

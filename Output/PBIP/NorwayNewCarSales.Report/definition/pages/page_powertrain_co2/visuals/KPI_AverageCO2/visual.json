@@ -1,0 +1,16 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "KPI_AverageCO2",
+  "position": {
+    "x": 648,
+    "y": 132,
+    "z": 2,
+    "height": 110,
+    "width": 296,
+    "tabOrder": 2
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "drillFilterOtherVisuals": true
+  }
+}

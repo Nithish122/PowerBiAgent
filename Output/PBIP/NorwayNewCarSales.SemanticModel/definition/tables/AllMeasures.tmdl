@@ -1,0 +1,69 @@
+table AllMeasures
+	column Dummy
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: Dummy
+
+	partition AllMeasures = m
+		mode: import
+		source =
+			let
+				Datafilepath = "C:\Users\User\Downloads\Norway"
+				Source = #table(type table [Dummy = Int64.Type], {{0}})
+			in
+				Source
+
+	/// Total monthly registrations across the selected period. Uses the monthly market fact. Blank when no row exists for the current date filter. Depends on FactMonthlyMarket[Quantity].
+	measure 'New Car Sales' = SUM ( 'FactMonthlyMarket'[Quantity] )
+		formatString: #,0
+		displayFolder: Measures\Base
+
+	/// Prior-year total for the same month or month set. Uses calendar month logic and depends on DimDate[Date]. Blank when no comparable period exists.
+	measure 'New Car Sales Previous Year' = CALCULATE ( [New Car Sales], SAMEPERIODLASTYEAR ( 'DimDate'[Date] ) )
+		formatString: #,0
+		displayFolder: Measures\Time Intelligence
+
+	/// Percentage change versus the same month in the prior year. Uses the monthly market fact and a prior-year comparison. Blank when the prior-year value is zero or missing.
+	measure 'New Car Sales YoY %' =
+		VAR CurrentValue = [New Car Sales]
+		VAR PreviousValue = [New Car Sales Previous Year]
+		RETURN
+		    DIVIDE ( CurrentValue - PreviousValue, PreviousValue )
+		formatString: 0.0%
+		displayFolder: Measures\KPI
+
+	/// Monthly diesel share from the source file. Uses the source percentage for the active month. Blank when the month lacks a diesel-share value.
+	measure 'Diesel Share' = AVERAGE ( 'FactMonthlyMarket'[Diesel_Share] )
+		formatString: 0.0%
+		displayFolder: Measures\Base
+
+	/// Electric sales as a share of total monthly sales. Uses the source monthly volume and blanks when the denominator is zero or missing.
+	measure 'Electric Share' = DIVIDE ( SUM ( 'FactMonthlyMarket'[Quantity_Electric] ), SUM ( 'FactMonthlyMarket'[Quantity] ) )
+		formatString: 0.0%
+		displayFolder: Measures\Base
+
+	/// Average reported CO2 across the selected month. Uses the source average CO2 value and does not infer a weighted multi-month rollup.
+	measure 'Average CO2' = AVERAGE ( 'FactMonthlyMarket'[Avg_CO2] )
+		formatString: #,0.0
+		displayFolder: Measures\Base
+
+	/// Make-level quantity across the active filter context. Uses the monthly make sales fact. Blank when the selected make has no recorded quantity.
+	measure 'Top Make Sales' = SUM ( 'FactMakeSales'[Quantity] )
+		formatString: #,0
+		displayFolder: Measures\Base
+
+	/// Make share from the source percentage for the selected context. Uses the original source share and stays at the recorded Year-Month-Make grain.
+	measure 'Make Share %' = AVERAGE ( 'FactMakeSales'[Pct] )
+		formatString: 0.0%
+		displayFolder: Measures\Base
+
+	/// Model-level quantity across the active filter context. Uses the monthly model fact and stays at the recorded Year-Month-Make-Model grain.
+	measure 'Top Model Sales' = SUM ( 'FactModelSales'[Quantity] )
+		formatString: #,0
+		displayFolder: Measures\Base
+
+	/// Model share from the source percentage for the selected context. Uses the source Year-Month-Make-Model grain without implied cross-period aggregation.
+	measure 'Model Share %' = AVERAGE ( 'FactModelSales'[Pct] )
+		formatString: 0.0%
+		displayFolder: Measures\Base

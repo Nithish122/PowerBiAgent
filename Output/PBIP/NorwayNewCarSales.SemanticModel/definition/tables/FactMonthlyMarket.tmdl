@@ -1,0 +1,106 @@
+/// Monthly market totals and indicator trends for Norway, with source-defined powertrain and CO2 measures.
+table FactMonthlyMarket
+	column DateKey
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: DateKey
+
+	column Year
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: Year
+
+	column Month
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: Month
+
+	column Quantity
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: Quantity
+
+	column Quantity_YoY
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: Quantity_YoY
+
+	column Import
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: Import
+
+	column Import_YoY
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: Import_YoY
+
+	column Used
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: Used
+
+	column Used_YoY
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: Used_YoY
+
+	column Avg_CO2
+		dataType: double
+		summarizeBy: average
+		sourceColumn: Avg_CO2
+
+	column Bensin_Co2
+		dataType: double
+		summarizeBy: average
+		sourceColumn: Bensin_Co2
+
+	column Diesel_Co2
+		dataType: double
+		summarizeBy: average
+		sourceColumn: Diesel_Co2
+
+	column Quantity_Diesel
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: Quantity_Diesel
+
+	column Diesel_Share
+		dataType: double
+		summarizeBy: average
+		sourceColumn: Diesel_Share
+
+	column Diesel_Share_LY
+		dataType: double
+		summarizeBy: average
+		sourceColumn: Diesel_Share_LY
+
+	column Quantity_Hybrid
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: Quantity_Hybrid
+
+	column Quantity_Electric
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: Quantity_Electric
+
+	column Import_Electric
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: Import_Electric
+
+	partition FactMonthlyMarket = m
+		mode: import
+		source =
+			let
+				Datafilepath = "C:\Users\User\Downloads\Norway"
+				Source = Csv.Document(File.Contents(Datafilepath & "\norway_new_car_sales_by_month.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+			    Typed = Table.TransformColumnTypes(PromotedHeaders, {{"Year", Int64.Type}, {"Month", Int64.Type}, {"Quantity", Int64.Type}, {"Quantity_YoY", Int64.Type}, {"Import", Int64.Type}, {"Import_YoY", Int64.Type}, {"Used", Int64.Type}, {"Used_YoY", Int64.Type}, {"Avg_CO2", type number}, {"Bensin_Co2", type number}, {"Diesel_Co2", type number}, {"Quantity_Diesel", Int64.Type}, {"Diesel_Share", type number}, {"Diesel_Share_LY", type number}, {"Quantity_Hybrid", Int64.Type}, {"Quantity_Electric", Int64.Type}, {"Import_Electric", Int64.Type}}),
+			    ReplacedNA = Table.ReplaceValue(Typed, "NA", null, Replacer.ReplaceValue, {"Quantity_YoY", "Import", "Import_YoY", "Used", "Used_YoY", "Avg_CO2", "Bensin_Co2", "Diesel_Co2", "Quantity_Diesel", "Diesel_Share", "Diesel_Share_LY", "Quantity_Hybrid", "Quantity_Electric", "Import_Electric"}),
+			    AddedDateKey = Table.AddColumn(ReplacedNA, "DateKey", each Number.From(Date.ToText(#date([Year], [Month], 1), "yyyyMMdd")), Int64.Type),
+			    Final = Table.ReorderColumns(AddedDateKey, {"DateKey", "Year", "Month", "Quantity", "Quantity_YoY", "Import", "Import_YoY", "Used", "Used_YoY", "Avg_CO2", "Bensin_Co2", "Diesel_Co2", "Quantity_Diesel", "Diesel_Share", "Diesel_Share_LY", "Quantity_Hybrid", "Quantity_Electric", "Import_Electric"})
+			in
+			    Final

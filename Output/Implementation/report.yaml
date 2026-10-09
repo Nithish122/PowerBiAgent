@@ -1,0 +1,120 @@
+report:
+  canvas:
+    width: 1280
+    height: 720
+  theme: default
+
+pages:
+  - name: Market Overview
+    type: executive
+    persona: PER-01
+    question: "How large is the new-car market, how is it changing, and which makes contribute most?"
+    reqs: [REQ-001, REQ-003, REQ-004, REQ-005]
+    visuals:
+      - id: KPI_NewCarSales
+        type: card
+        title: "New Car Sales"
+        position: { x: 24, y: 132, width: 296, height: 110 }
+        fields:
+          values: ["[New Car Sales]"]
+      - id: KPI_NewCarSalesYoY
+        type: card
+        title: "New Car Sales YoY %"
+        position: { x: 336, y: 132, width: 296, height: 110 }
+        fields:
+          values: ["[New Car Sales YoY %]"]
+      - id: CHT_SalesTrend
+        type: lineChart
+        title: "Monthly Sales Trend"
+        position: { x: 24, y: 258, width: 816, height: 250 }
+        fields:
+          category: ["DimDate[YearMonth]"]
+          values: ["[New Car Sales]"]
+      - id: CHT_TopMakes
+        type: clusteredBarChart
+        title: "Top 10 Makes by Quantity"
+        position: { x: 856, y: 258, width: 400, height: 250 }
+        fields:
+          category: ["DimMake[MakeName]"]
+          values: ["[Top Make Sales]"]
+      - id: TBL_MakeDetail
+        type: tableEx
+        title: "Make Detail"
+        position: { x: 24, y: 524, width: 1232, height: 172 }
+        fields:
+          category: ["DimMake[MakeName]"]
+          values: ["[Top Make Sales]", "[Make Share %]"]
+
+  - name: Powertrain and CO2 Trends
+    type: analysis
+    persona: PER-02
+    question: "How have reported diesel, hybrid, electric, and CO2 indicators changed over time?"
+    reqs: [REQ-002, REQ-004, REQ-005]
+    visuals:
+      - id: KPI_DieselShare
+        type: card
+        title: "Diesel Share"
+        position: { x: 24, y: 132, width: 296, height: 110 }
+        fields:
+          values: ["[Diesel Share]"]
+      - id: KPI_ElectricShare
+        type: card
+        title: "Electric Share"
+        position: { x: 336, y: 132, width: 296, height: 110 }
+        fields:
+          values: ["[Electric Share]"]
+      - id: KPI_AverageCO2
+        type: card
+        title: "Average CO2"
+        position: { x: 648, y: 132, width: 296, height: 110 }
+        fields:
+          values: ["[Average CO2]"]
+      - id: CHT_PowertrainTrend
+        type: lineChart
+        title: "Powertrain Share Trend"
+        position: { x: 24, y: 258, width: 600, height: 250 }
+        fields:
+          category: ["DimDate[YearMonth]"]
+          values: ["[Diesel Share]", "[Electric Share]"]
+      - id: CHT_CO2Trend
+        type: lineChart
+        title: "CO2 Trend"
+        position: { x: 648, y: 258, width: 608, height: 250 }
+        fields:
+          category: ["DimDate[YearMonth]"]
+          values: ["[Average CO2]"]
+      - id: TBL_PowertrainDetail
+        type: tableEx
+        title: "Monthly Indicator Detail"
+        position: { x: 24, y: 524, width: 1232, height: 172 }
+        fields:
+          category: ["DimDate[YearMonth]"]
+          values: ["[Diesel Share]", "[Electric Share]", "[Average CO2]"]
+
+  - name: Make and Model Performance
+    type: detail
+    persona: PER-03
+    question: "Which makes and models lead sales, and how do their volumes and ranks vary over the selected period?"
+    reqs: [REQ-003, REQ-004, REQ-005]
+    visuals:
+      - id: CHT_TopModels
+        type: clusteredBarChart
+        title: "Top 10 Models by Quantity"
+        position: { x: 24, y: 132, width: 600, height: 250 }
+        fields:
+          category: ["DimModel[ModelName]"]
+          values: ["[Top Model Sales]"]
+      - id: CHT_SelectedMakeTrend
+        type: lineChart
+        title: "Selected Make Trend"
+        position: { x: 648, y: 132, width: 608, height: 250 }
+        fields:
+          category: ["DimDate[YearMonth]"]
+          values: ["[Top Make Sales]"]
+      - id: TBL_ModelMatrix
+        type: pivotTable
+        title: "Make and Model Matrix"
+        position: { x: 24, y: 406, width: 1232, height: 290 }
+        fields:
+          category: ["DimMake[MakeName]", "DimModel[ModelName]"]
+          values: ["[Top Model Sales]", "[Model Share %]"]

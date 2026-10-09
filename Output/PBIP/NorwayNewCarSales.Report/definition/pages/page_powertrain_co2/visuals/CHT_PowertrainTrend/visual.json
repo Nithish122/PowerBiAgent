@@ -1,0 +1,16 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "CHT_PowertrainTrend",
+  "position": {
+    "x": 24,
+    "y": 258,
+    "z": 3,
+    "height": 250,
+    "width": 600,
+    "tabOrder": 3
+  },
+  "visual": {
+    "visualType": "lineChart",
+    "drillFilterOtherVisuals": true
+  }
+}
