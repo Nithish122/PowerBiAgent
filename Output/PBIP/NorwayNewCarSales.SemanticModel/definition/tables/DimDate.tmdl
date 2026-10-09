@@ -68,4 +68,23 @@ table DimDate
 
 	partition DimDate = m
 		mode: import
-		source = #table(type table [Date = date, DateKey = Int64.Type, Year = Int64.Type, Quarter = Int64.Type, MonthNumber = Int64.Type, MonthName = text, YearMonth = text, YearMonthNumber = Int64.Type, WeekNumber = Int64.Type, DayOfWeekName = text, DayOfWeekNumber = Int64.Type], {})
+		source =
+			let
+				Datafilepath = "C:\Users\User\Desktop\Agent\PowerBiAgent\Data"
+				Source = Csv.Document(File.Contents(Datafilepath & "\norway_new_car_sales_by_month.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				Typed = Table.TransformColumnTypes(PromotedHeaders, {{"Year", Int64.Type}, {"Month", Int64.Type}}),
+				UniqueMonths = Table.Distinct(Table.SelectColumns(Typed, {"Year", "Month"})),
+				AddedDate = Table.AddColumn(UniqueMonths, "Date", each #date([Year], [Month], 1), type date),
+				AddedDateKey = Table.AddColumn(AddedDate, "DateKey", each Number.From(Date.ToText([Date], "yyyyMMdd")), Int64.Type),
+				AddedQuarter = Table.AddColumn(AddedDateKey, "Quarter", each Date.QuarterOfYear([Date]), Int64.Type),
+				AddedMonthNumber = Table.AddColumn(AddedQuarter, "MonthNumber", each Date.Month([Date]), Int64.Type),
+				AddedMonthName = Table.AddColumn(AddedMonthNumber, "MonthName", each Date.ToText([Date], "MMMM"), type text),
+				AddedYearMonth = Table.AddColumn(AddedMonthName, "YearMonth", each Text.From([Year]) & "-" & Text.PadStart(Text.From([MonthNumber]), 2, "0"), type text),
+				AddedYearMonthNumber = Table.AddColumn(AddedYearMonth, "YearMonthNumber", each [Year] * 100 + [MonthNumber], Int64.Type),
+				AddedWeekNumber = Table.AddColumn(AddedYearMonthNumber, "WeekNumber", each 0, Int64.Type),
+				AddedDayOfWeekName = Table.AddColumn(AddedWeekNumber, "DayOfWeekName", each "Month", type text),
+				AddedDayOfWeekNumber = Table.AddColumn(AddedDayOfWeekName, "DayOfWeekNumber", each 1, Int64.Type),
+				Final = Table.SelectColumns(AddedDayOfWeekNumber, {"Date", "DateKey", "Year", "Quarter", "MonthNumber", "MonthName", "YearMonth", "YearMonthNumber", "WeekNumber", "DayOfWeekName", "DayOfWeekNumber"})
+			in
+				Final
